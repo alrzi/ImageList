@@ -33,28 +33,32 @@ protocol WebViewControllerDelegate: AnyObject {
 protocol WebViewPresenterProtocol {
     var view: WebViewControllerProtocol? { get }
     func viewDidLoad()
-    func code(from url: URL?) -> String?
+    func code(from url: URL) -> String?
     func didUpdateProgressValue(_ newValue: Double)
 }
 
 final class WebViewController: UIViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle { .darkContent }
     
-    @objc private var webView: WKWebView = {
+    @objc
+    private lazy var webView: WKWebView = {
         let webView = WKWebView()
         webView.accessibilityIdentifier = "WebView"
         webView.translatesAutoresizingMaskIntoConstraints = false
+        webView.backgroundColor = .white
+        webView.navigationDelegate = self
         return webView
     }()
     
-    private let backButton: UIButton = {
+    private lazy var backButton: UIButton = {
         let button = UIButton()
         button.setImage(.backWebView, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         return button
     }()
     
-    private let progressView: UIProgressView = {
+    private lazy var progressView: UIProgressView = {
         let progressView = UIProgressView()
         progressView.translatesAutoresizingMaskIntoConstraints = false
         progressView.progressViewStyle = .default
@@ -63,7 +67,7 @@ final class WebViewController: UIViewController {
     }()
     
     // MARK: Delegate
-    weak var delegate: WebViewControllerDelegate?
+    private weak var delegate: WebViewControllerDelegate?
     
     // MARK: Presenter
     lazy var presenter: WebViewPresenterProtocol = WebViewViewPresenter(
@@ -79,7 +83,12 @@ final class WebViewController: UIViewController {
     // MARK: - Init
     init(delegate: WebViewControllerDelegate?) {
         self.delegate = delegate
+        
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("Unsupported")
     }
     
     // MARK: - LifeCycle
@@ -87,7 +96,6 @@ final class WebViewController: UIViewController {
         super.viewDidLoad()
         
         setViews()
-        setTargets()
         presenter.viewDidLoad()
     }
     
@@ -104,24 +112,18 @@ final class WebViewController: UIViewController {
     }
     
     func addObserver() {
-        estimatedProgressObservation = webView.observe(
-            \.estimatedProgress,
-            options: [.new]) { [weak self] _, change in
-                guard let self = self,
-                    let newValue = change.newValue
-                else {
-                    return
-                }
-                self.presenter.didUpdateProgressValue(newValue)
+        estimatedProgressObservation = webView.observe(\.estimatedProgress, options: [.new]) { [weak self] _, change in
+            guard let newValue = change.newValue else {
+                return
+            }
+            
+            self?.presenter.didUpdateProgressValue(newValue)
         }
     }
     
-    @objc private func backButtonTapped() {
+    @objc
+    private func backButtonTapped() {
         delegate?.webViewViewControllerDidCancel(self)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("Unsupported")
     }
 }
 
@@ -140,16 +142,16 @@ extension WebViewController: WebViewControllerProtocol {
 }
 
 // MARK: - UI
+
 private extension WebViewController {
     func setViews() {
-        view.addSubviews(webView, backButton, progressView)
+        view.addSubviews(
+            webView,
+            backButton,
+            progressView
+        )
+        
         view.backgroundColor = .white
-        webView.backgroundColor = .white
-        webView.navigationDelegate = self
-    }
-    
-    func setTargets() {
-        backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
     }
     
     func setConstraints() {
@@ -159,11 +161,9 @@ private extension WebViewController {
             webView.topAnchor.constraint(equalTo: progressView.bottomAnchor),
             webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            backButton.topAnchor.constraint(
-                equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
-            backButton.leadingAnchor.constraint(
-                equalTo: view.leadingAnchor, constant: 16),
-
+            backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
+            backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            
             progressView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             progressView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             progressView.topAnchor.constraint(equalTo: backButton.bottomAnchor)
@@ -172,25 +172,19 @@ private extension WebViewController {
 }
 
 // MARK: - WKNavigationDelegate
+
 extension WebViewController: WKNavigationDelegate {
-    func webView(
-        _ webView: WKWebView,
-        decidePolicyFor navigationAction: WKNavigationAction,
-        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
-    ) {
-        if let code = code(from: navigationAction) {
-            delegate?.webViewViewController(self, didAuthenticateWithCode: code)
-            decisionHandler(.cancel)
-        } else {
-            decisionHandler(.allow)
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
+        guard let url = navigationAction.request.url else {
+            return .allow
         }
-    }
-    
-    private func code(from navigationAction: WKNavigationAction) -> String? {
-        if let url = navigationAction.request.url {
-            return presenter.code(from: url)
-        } else {
-            return nil
+                
+        guard let code = presenter.code(from: url) else {
+            return .allow
         }
+        
+        delegate?.webViewViewController(self, didAuthenticateWithCode: code)
+        
+        return .cancel
     }
 }

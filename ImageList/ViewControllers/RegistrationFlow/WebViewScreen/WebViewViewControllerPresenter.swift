@@ -45,7 +45,7 @@ extension WebViewViewPresenter: WebViewPresenterProtocol {
         view?.setProgressHidden(shouldHideProgress)
     }
     
-    func code(from url: URL?) -> String? {
+    func code(from url: URL) -> String? {
         authHelper.code(from: url)
     }
 }

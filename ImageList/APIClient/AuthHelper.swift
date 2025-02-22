@@ -2,7 +2,7 @@ import Foundation
 
 protocol AuthHelperProtocol {
     func authRequest() -> URLRequest?
-    func code(from url: URL?) -> String?
+    func code(from url: URL) -> String?
 }
 
 protocol AuthTokenRequestProtocol {
@@ -63,14 +63,16 @@ extension AuthHelper: AuthHelperProtocol {
         )
     }
     
-    func code(from url: URL?) -> String? {
-        if let url = url,
+    func code(from url: URL) -> String? {
+        if
             let urlComponents = URLComponents(string: url.absoluteString),
             urlComponents.path == "/oauth/authorize/native",
             let items = urlComponents.queryItems,
-            let codeItem = items.first(where: { $0.name == "code" }) {
+            let codeItem = items.first(where: { $0.name == "code" })
+        {
             return codeItem.value
-        } else {
+        }
+        else {
             return nil
         }
     }

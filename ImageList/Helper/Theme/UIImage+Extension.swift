@@ -9,10 +9,10 @@ extension UIImage {
     )
     static let tabBarLeft = UIImage(
         named: "03TabBarLeft"
-    )
+    )!
     static let tabBarRight = UIImage(
         named: "04TabBarRight"
-    )
+    )!
     static let welcomeScreenImage = UIImage(
         named: "05WelcomeScreen"
     )

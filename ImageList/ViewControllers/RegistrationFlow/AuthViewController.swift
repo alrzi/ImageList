@@ -104,9 +104,7 @@ private extension AuthViewController {
     }
     
     func setTargets() {
-        enterButton.addTarget(
-            self, action: #selector(enterButtonTapped), for: .touchUpInside
-        )
+        enterButton.addTarget(self, action: #selector(enterButtonTapped), for: .touchUpInside)
     }
     
     func setConstraints() {

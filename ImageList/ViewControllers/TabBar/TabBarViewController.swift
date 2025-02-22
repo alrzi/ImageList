@@ -3,22 +3,24 @@ import UIKit
 final class TabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         delegate = self
-        let imagesListViewController = ImagesListViewController()
-        let profileViewController = ProfileViewController()
-        
-        imagesListViewController.tabBarItem = UITabBarItem(
-            title: "",
-            image: .tabBarLeft,
-            tag: 1)
-        profileViewController.tabBarItem = UITabBarItem(
-            title: "",
-            image: .tabBarRight,
-            tag: 2)
+        setAppearance()
+        viewControllers = [
+            generateViewController(ImagesListViewController(), image: .tabBarLeft, title: ""),
+            generateViewController(ProfileViewController(), image: .tabBarRight, title: "")
+        ]
+    }
+}
 
-        setViewControllers([imagesListViewController, profileViewController], animated: false)
-        
+private extension TabBarController {
+    func generateViewController(_ rootViewController: UIViewController, image: UIImage, title: String) -> UIViewController {
+        let vc = rootViewController
+        vc.tabBarItem.image = image
+        vc.tabBarItem.title = title
+        return vc
+    }
+    
+    func setAppearance() {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = .myBlack

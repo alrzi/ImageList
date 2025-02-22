@@ -53,7 +53,8 @@ extension ImageListService: ImageListServiceProtocol {
         let request = requests.like(photoId: photoId, isLiked: isLiked)
         let task = session.object(
             for: request,
-            expectedType: LikeResult.self) { [weak self] result in
+            expectedType: LikeResult.self
+        ) { [weak self] result in
                 guard let self = self else { return }
                 switch result {
                 case .success(let isLiked):
@@ -78,7 +79,8 @@ extension ImageListService: ImageListServiceProtocol {
         let request = requests.photos(page: nextPage)
         let task = session.object(
             for: request,
-            expectedType: [PhotoResult].self) { [weak self] result in
+            expectedType: [PhotoResult].self
+        ) { [weak self] result in
                 guard let self = self else { return }
                 switch result {
                 case .success(let photoResult):
