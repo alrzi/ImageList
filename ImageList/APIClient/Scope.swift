@@ -7,16 +7,11 @@ enum Scope {
     
     var string: String {
         switch self {
-        case .public:
-            return "public"
-        case .readUser:
-            return "read_user"
-        case .writeLikes:
-            return "write_likes"
-        case .readCollections:
-            return "read_collections"
-        case .writeCollections:
-            return "write_collections"
+        case .public: "public"
+        case .readUser: "read_user"
+        case .writeLikes: "write_likes"
+        case .readCollections: "read_collections"
+        case .writeCollections: "write_collections"
         }
     }
 }

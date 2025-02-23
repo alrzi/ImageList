@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F95B3B84298D660D00D1B688 /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = F95B3B83298D660D00D1B688 /* ProgressHUD */; };
 		F9C3F9802998F6A100133F25 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = F9C3F97F2998F6A100133F25 /* Kingfisher */; };
 		F9F39003299FBF090043CE8C /* SwiftKeychainWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = F9F39002299FBF090043CE8C /* SwiftKeychainWrapper */; };
 /* End PBXBuildFile section */
@@ -64,7 +63,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F9C3F9802998F6A100133F25 /* Kingfisher in Frameworks */,
-				F95B3B84298D660D00D1B688 /* ProgressHUD in Frameworks */,
 				F9F39003299FBF090043CE8C /* SwiftKeychainWrapper in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -141,7 +139,6 @@
 			);
 			name = ImageList;
 			packageProductDependencies = (
-				F95B3B83298D660D00D1B688 /* ProgressHUD */,
 				F9C3F97F2998F6A100133F25 /* Kingfisher */,
 				F9F39002299FBF090043CE8C /* SwiftKeychainWrapper */,
 			);
@@ -203,7 +200,6 @@
 			);
 			mainGroup = F9843EE2295847EA00EB2CF4;
 			packageReferences = (
-				F95B3B82298D660D00D1B688 /* XCRemoteSwiftPackageReference "ProgressHUD" */,
 				F9C3F97E2998F6A100133F25 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				F9F39001299FBF090043CE8C /* XCRemoteSwiftPackageReference "SwiftKeychainWrapper" */,
 			);
@@ -468,7 +464,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = NO;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -480,7 +476,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -501,7 +497,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = NO;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -513,7 +509,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
@@ -598,14 +594,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		F95B3B82298D660D00D1B688 /* XCRemoteSwiftPackageReference "ProgressHUD" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/relatedcode/ProgressHUD";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 13.0.0;
-			};
-		};
 		F9C3F97E2998F6A100133F25 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher";
@@ -625,11 +613,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		F95B3B83298D660D00D1B688 /* ProgressHUD */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F95B3B82298D660D00D1B688 /* XCRemoteSwiftPackageReference "ProgressHUD" */;
-			productName = ProgressHUD;
-		};
 		F9C3F97F2998F6A100133F25 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F9C3F97E2998F6A100133F25 /* XCRemoteSwiftPackageReference "Kingfisher" */;

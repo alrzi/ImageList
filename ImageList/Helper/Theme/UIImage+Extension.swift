@@ -13,9 +13,8 @@ extension UIImage {
     static let tabBarRight = UIImage(
         named: "04TabBarRight"
     )!
-    static let welcomeScreenImage = UIImage(
-        named: "05WelcomeScreen"
-    )
+    static let welcomeScreenImage = UIImage(named: "05WelcomeScreen")
+    
     static let person = UIImage(
         named: "06person"
     )

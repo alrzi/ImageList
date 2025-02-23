@@ -25,12 +25,14 @@ struct AuthHelper {
     
     private func getHostAndPath(from urlString: String) -> (host: String, path: String)? {
         let parts = urlString.components(separatedBy: "//")
+        
         guard parts.count > 1 else {
             return nil
         }
 
         let host = parts[1]
             .components(separatedBy: "/")[0]
+        
         let path = "/" + parts[1]
             .components(separatedBy: "/")
             .dropFirst()
@@ -81,11 +83,13 @@ extension AuthHelper: AuthHelperProtocol {
 extension AuthHelper: AuthTokenRequestProtocol {
     func oAuthTokenRequest(code: String) -> URLRequest? {
         let urlString = configuration.tokenURLString
+        
         guard
             let url = getHostAndPath(from: urlString)
         else {
             return nil
         }
+        
         let request = requestBuilder.makeHTTPRequest(
             scheme: "https",
             host: url.host,
@@ -97,7 +101,9 @@ extension AuthHelper: AuthTokenRequestProtocol {
                 URLQueryItem(name: "code", value: code),
                 URLQueryItem(name: "grant_type", value: "authorization_code")
             ],
-            httpMethod: .post)
+            httpMethod: .post
+        )
+        
         return request
     }
 }

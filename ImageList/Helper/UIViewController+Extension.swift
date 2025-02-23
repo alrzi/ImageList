@@ -30,8 +30,9 @@ struct Action {
 }
 
 private extension Action {
+    @MainActor
     func toConvertToAlertAction() -> UIAlertAction {
-        return UIAlertAction(
+        UIAlertAction(
             title: self.title,
             style: self.style,
             handler: self.handler

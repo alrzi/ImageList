@@ -21,16 +21,17 @@ extension URLSession {
         case urlSessionError
         case decodingError(Error)
     }
-    
+        
+    @MainActor
     func object<T: Decodable>(
         for request: URLRequest,
         expectedType type: T.Type,
         completion: @escaping (Result<T, Error>) -> Void
     ) -> URLSessionTask {
+        
+        
         let fulfillCompletion: (Result<T, Error>) -> Void = { result in
-            DispatchQueue.main.async {
-                completion(result)
-            }
+            completion(result)
         }
         
         let task = dataTask(with: request) { data, response, error in

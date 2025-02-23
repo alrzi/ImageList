@@ -42,7 +42,8 @@ final class ImageListService {
     }
 }
 
-extension ImageListService: ImageListServiceProtocol {
+extension ImageListService: @preconcurrency ImageListServiceProtocol {
+    @MainActor
     func changeLike(
         photoId: String,
         isLiked: Bool,
@@ -71,6 +72,7 @@ extension ImageListService: ImageListServiceProtocol {
         task.resume()
     }
     
+    @MainActor
     func fetchPhotosNextPage(completion: @escaping (String) -> Void) {
         guard task == nil else { return }
         let nextPage = lastLoadedPage == nil ? 1 : lastLoadedPage! + 1
@@ -98,15 +100,15 @@ extension ImageListService: ImageListServiceProtocol {
     }
 }
 
-fileprivate struct LikeResult: Decodable {
+private struct LikeResult: Decodable {
     let photo: Photos
 }
 
-fileprivate struct Photos: Decodable {
+private struct Photos: Decodable {
     let likedByUser: Bool
 }
 
-fileprivate struct PhotoResult: Decodable {
+private struct PhotoResult: Decodable {
     let id: String
     let createdAt: Date?
     let width, height: Double
@@ -115,14 +117,14 @@ fileprivate struct PhotoResult: Decodable {
     let urls: UrlsResult
 }
 
-fileprivate struct UrlsResult: Decodable {
+private struct UrlsResult: Decodable {
     let full: String
     let thumb: String
     let regular: String
     let small: String
 }
 
-fileprivate extension PhotoResult {
+private extension PhotoResult {
     func convertToPhotoModel() -> Photo {
         Photo(
             id: self.id,

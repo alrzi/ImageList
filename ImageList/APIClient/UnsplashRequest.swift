@@ -32,7 +32,7 @@ struct UnsplashRequest {
     }
     
     private var token: String {
-        if let token = OAuth2TokenStorage().token {
+        if let token = try? OAuth2TokenStorage().token {
             return token
         } else {
             preconditionFailure("Something wrong")
