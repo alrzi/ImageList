@@ -14,7 +14,7 @@ protocol ImageListViewModelProtocol: ObservableObject {
     func onAppear()
     func onRetry()
     func onLikeTap(at index: Int)
-    func onImageTap(at index: Int)   
+    func onImageTap(at index: Int)
 }
 
 final class ImageListViewModel: ImageListViewModelProtocol {
@@ -22,6 +22,7 @@ final class ImageListViewModel: ImageListViewModelProtocol {
     private let imageListService: ImageListServiceProtocol
     
     private var page: Int = 1
+    private var isLikeUpdateInProgress = false
     
     @Published private(set) var state: State<[ImageListCellViewModel]> = .loading
     
@@ -88,21 +89,26 @@ private extension ImageListViewModel {
     }
     
     func updateLike(for index: Int) {
-        guard case .loaded(var models) = state, let model = models.elementOrNil(at: index) else {
-            return
-        }
-        
         Task { [weak self, imageListService] in
-            guard let self else {
+            guard
+                let self,
+                !isLikeUpdateInProgress,
+                case .loaded(var models) = state,
+                let model = models.elementOrNil(at: index)
+            else {
                 return
             }
             
+            isLikeUpdateInProgress = true
+                       
             let isLiked = try await imageListService.changeLike(photoId: model.id, isLiked: !model.isLiked)
             
             _ = models.remove(at: index)
             models.insert(model.withIsLiked(isLiked), at: index)
             
             state = .loaded(models)
+            
+            isLikeUpdateInProgress = false
         }
     }
 }
