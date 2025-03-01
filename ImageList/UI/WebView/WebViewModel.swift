@@ -19,28 +19,29 @@ protocol WebViewModelProtocol: AnyObject {
 }
 
 final class WebViewModel: WebViewModelProtocol {
-    private let authHelper: AuthHelperProtocol
+    private let authHelper: WebViewAuthHelper
     private let onComplete: (WebViewOutput) -> Void
     
     @Published private(set) var request: URLRequest?
-    @Published private(set) var webViewProgress: WebViewProgress = .finished
+    @Published private(set) var webViewProgress: WebViewProgress = .idle
     
     init(
-        authHelper: AuthHelperProtocol,
+        authHelper: WebViewAuthHelper = .init(),
         onComplete: @escaping (WebViewOutput) -> Void
     ) {
         self.authHelper = authHelper
         self.onComplete = onComplete
-        
-        guard let authRequest = authHelper.authRequest() else {
-            return
+                        
+        do {
+            request = try API.AuthRequest(authConfiguration: .standard).asURLRequest()
         }
-        
-        request = authRequest
+        catch {
+            
+        }
     }
     
     func onProgressValueUpdated(_ newValue: Double) {
-        webViewProgress = shouldHideProgress(for: newValue) ? .finished : .onGoing(Float(newValue))
+        webViewProgress = shouldHideProgress(for: newValue) ? .idle : .onGoing(Float(newValue))
     }
     
     func onBackButton() {

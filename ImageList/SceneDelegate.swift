@@ -11,24 +11,28 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        guard let windowScene = (scene as? UIWindowScene) else { return }
+        guard let windowScene = (scene as? UIWindowScene) else {
+            return
+        }
         
         // servises
         
+        let decoder: JSONDecoder = .sharedDecoder
         let session = URLSession.shared
         let networkService = NetworkClient(session: session)
-        let authHelper = AuthHelper(requestBuilder: RequestBuilder())
-        let oAuth2Service = OAuth2Service(networkService: networkService)
+        let oAuth2Service = OAuth2Service(networkService: networkService, decoder: decoder)
         let oAuth2TokenStorage = OAuth2TokenStorage()
-        let profileImageURLService = ProfileImageURLService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
-        let profileService = ProfileService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
+        let profileImageURLService = ProfileImageURLService(decoder: decoder, networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
+        let profileService = ProfileService(decoder: decoder, networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
         let webViewCleaner = WebViewCookieDataCleaner()
         let profileImageService = ProfileImageService(networkService: networkService)
+        let imageListService = ImageListService(decoder: decoder, networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
+        let imageListProvider = ImageListProvider(imageListService: imageListService, profileImageService: profileImageService)
         
         // assemblies
         
-        let webViewAssembly = WebViewAssembly(authHelper: authHelper)
-        let authAssembly = AuthAssembly(oAuth2Service: oAuth2Service)
+        let webViewAssembly = WebViewAssembly()
+        let authAssembly = AuthAssembly(oAuth2TokenStorage: oAuth2TokenStorage, oAuth2Service: oAuth2Service)
         
         let profileAssembly = ProfileAssembly(
             profileImageURLService: profileImageURLService,
@@ -38,19 +42,27 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             profileImageService: profileImageService
         )
         
+        let imageListAssembly = ImageListAssembly(
+            imageListProvider: imageListProvider,
+            imageListService: imageListService
+        )
+        
+        let window = UIWindow(windowScene: windowScene)
         let navigationController = UINavigationController()
         
         let coordinator = LoginCoordinator(
+            oAuth2TokenStorage: oAuth2TokenStorage,
             webViewAssembly: webViewAssembly,
             authAssembly: authAssembly,
             profileAssembly: profileAssembly,
+            imageListAssembly: imageListAssembly,
+            window: window,
             navigationController: navigationController
         )
         
         coordinator.start()
-        
-        let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = navigationController
+                
+        window.rootViewController = window.rootViewController
         window.makeKeyAndVisible()
         self.window = window
     }
@@ -90,26 +102,45 @@ protocol Coordinator {
 }
 
 struct LoginCoordinator: Coordinator {
+    private let oAuth2TokenStorage: any OAuth2TokenStorageProtocol
+    
     private let webViewAssembly: WebViewAssembly
     private let authAssembly: AuthAssembly
     private let profileAssembly: ProfileAssembly
+    private let imageListAssembly: ImageListAssembly
     
-    private let navigationController: UINavigationController
+    private let window: UIWindow
+    private var navigationController: UINavigationController
 
     init(
+        oAuth2TokenStorage: any OAuth2TokenStorageProtocol,
         webViewAssembly: WebViewAssembly,
         authAssembly: AuthAssembly,
         profileAssembly: ProfileAssembly,
+        imageListAssembly: ImageListAssembly,
+        window: UIWindow,
         navigationController: UINavigationController
     ) {
+        self.oAuth2TokenStorage = oAuth2TokenStorage
         self.webViewAssembly = webViewAssembly
         self.authAssembly = authAssembly
         self.profileAssembly = profileAssembly
+        self.imageListAssembly = imageListAssembly
+        self.window = window
         self.navigationController = navigationController
     }
    
     func start() {
-        showAuthView()
+        do {
+            _ = try oAuth2TokenStorage.token
+            
+            showHome()
+        }
+        catch {
+            window.rootViewController = navigationController
+            
+            showAuthView()
+        }
     }
 }
 
@@ -122,6 +153,7 @@ private extension LoginCoordinator {
                         switch output {
                         case .authenticated:
                             showHome()
+                            navigationController.setViewControllers([], animated: false)
                         
                         case .authenticate:
                             showWebView()
@@ -147,12 +179,20 @@ private extension LoginCoordinator {
     }
     
     func showHome() {
-        guard let window = UIApplication.shared.windows.first else {
-            fatalError("Wrong Configuration")
-        }
+        let profileAssembly = profileAssembly.assemble(
+            .init { output in
+                switch output {
+                case .onLogOut:
+                    Task { @MainActor in
+                        start()
+                    }
+                }
+            }
+        )
         
         let viewController = TabBarController(
-            profileViewController: profileAssembly.assemble(.init())
+            imagesListViewController: imageListAssembly.assemble(.init()),
+            profileViewController: profileAssembly
         )
         
         window.rootViewController = viewController

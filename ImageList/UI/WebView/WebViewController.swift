@@ -29,8 +29,6 @@ final class WebViewController: UIViewController {
     }()
     
     private var cancellables: Set<AnyCancellable> = []
-    private var estimatedProgressObservation: NSKeyValueObservation?
-    
     private let viewModel: WebViewModel
         
     init(viewModel: WebViewModel) {
@@ -56,7 +54,8 @@ final class WebViewController: UIViewController {
 
 private extension WebViewController {
     func setViews() {
-        view.addSubviews(webView, progressView)
+        view.addSubview(webView)
+        view.addSubview(progressView)
         view.backgroundColor = .white
     }
     
@@ -94,7 +93,6 @@ private extension WebViewController {
             .store(in: &cancellables)
         
         webView.publisher(for: \.estimatedProgress)
-            .receive(on: DispatchQueue.main)
             .sink { [weak self] in self?.viewModel.onProgressValueUpdated($0) }
             .store(in: &cancellables)
     }
@@ -104,14 +102,14 @@ private extension WebViewProgress {
     var isHidden: Bool {
         switch self {
         case .onGoing: false
-        case .finished: true
+        case .idle: true
         }
     }
     
     var progressValue: Float {
         switch self {
         case .onGoing(let progress): progress
-        case .finished: 0
+        case .idle: 0
         }
     }
 }

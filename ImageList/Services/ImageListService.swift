@@ -2,118 +2,68 @@
 //  ImageListService.swift
 //  ImageList
 //
-//  Created by Александр Зиновьев on 18.02.2023.
+//  Created by Александр Зиновьев on 27.02.2025.
 //
 
 import Foundation
 
 protocol ImageListServiceProtocol {
-    func fetchPhotosNextPage(completion: @escaping (String) -> Void)
-    func changeLike(photoId: String, isLiked: Bool, completion: @escaping (Result<Void, Error>) -> Void)
-    var photos: [Photo] { get }
+    func fetchPhotosNextPage(_ page: Int) async throws -> [Photo]
+    func changeLike(photoId: String, isLiked: Bool) async throws -> Bool
 }
 
-final class ImageListService {
-    static let didChangeNotification = Notification.Name("ImageListService")
-    // MARK: - Dependency
-    private let requests: UnsplashRequestProtocol
+struct ImageListService: ImageListServiceProtocol {
+    private let decoder: JSONDecoder
+    private let networkService: NetworkClientProtocol
+    private let oAuth2TokenStorage: OAuth2TokenStorage
     
-    // MARK: - Init (Dependency injection)
-    init(requests: UnsplashRequestProtocol) {
-        self.requests = requests
-    }
-    
-    private var task: URLSessionTask?
-    private let session = URLSession.shared
-    
-    private var lastLoadedPage: Int?
-    private(set) var photos: [Photo] = []
-    
-    private func postNotification(with numberOfPictures: Int) {
-        NotificationCenter.default
-            .post(
-                name: ImageListService.didChangeNotification,
-                object: self,
-                userInfo: [
-                    UserInfo.photos.rawValue: photos,
-                    UserInfo.numberOfPictures.rawValue: numberOfPictures
-                ]
-            )
-    }
-}
-
-extension ImageListService: @preconcurrency ImageListServiceProtocol {
-    @MainActor
-    func changeLike(
-        photoId: String,
-        isLiked: Bool,
-        completion: @escaping (Result<Void, Error>) -> Void
+    init(
+        decoder: JSONDecoder,
+        networkService: NetworkClientProtocol,
+        oAuth2TokenStorage: OAuth2TokenStorage
     ) {
-        guard task == nil else { return }
-        
-        let request = requests.like(photoId: photoId, isLiked: isLiked)
-        let task = session.object(
-            for: request,
-            expectedType: LikeResult.self
-        ) { [weak self] result in
-                guard let self = self else { return }
-                switch result {
-                case .success(let isLiked):
-                    if let index = self.photos.firstIndex(where: { $0.id == photoId }) {
-                        self.photos[index].isLiked = isLiked.photo.likedByUser
-                    }
-                    completion(.success(Void()))
-                case .failure(let failure):                    
-                    completion(.failure(failure))
-                }
-                self.task = nil
-        }
-        self.task = task
-        task.resume()
+        self.decoder = decoder
+        self.networkService = networkService
+        self.oAuth2TokenStorage = oAuth2TokenStorage
     }
     
-    @MainActor
-    func fetchPhotosNextPage(completion: @escaping (String) -> Void) {
-        guard task == nil else { return }
-        let nextPage = lastLoadedPage == nil ? 1 : lastLoadedPage! + 1
-        lastLoadedPage = nextPage
-
-        let request = requests.photos(page: nextPage)
-        let task = session.object(
-            for: request,
-            expectedType: [PhotoResult].self
-        ) { [weak self] result in
-                guard let self = self else { return }
-                switch result {
-                case .success(let photoResult):
-                    let receivedPhotos = photoResult.map { $0.convertToPhotoModel() }
-                    let newPhotos = receivedPhotos.filter { !self.photos.contains($0) }
-                    self.photos.append(contentsOf: newPhotos)
-                    self.postNotification(with: newPhotos.count)
-                case .failure(let failure):
-                    completion(failure.localizedDescription)
-                }
-                self.task = nil
-        }
-        self.task = task
-        task.resume()
+    func fetchPhotosNextPage(_ page: Int) async throws -> [Photo] {
+        let token = try oAuth2TokenStorage.token
+        
+        let request = API.PhotosNextPageRequest(
+            page: page,
+            token: token
+        )
+        
+        let data = try await networkService.fetchData(for: request)
+        
+        let result = try decoder.decode([PhotoResult].self, from: data)
+        
+        return result.map { $0.toPhoto() }
     }
-}
-
-private struct LikeResult: Decodable {
-    let photo: Photos
-}
-
-private struct Photos: Decodable {
-    let likedByUser: Bool
+    
+    func changeLike(photoId: String, isLiked: Bool) async throws -> Bool {
+        let token = try oAuth2TokenStorage.token
+        
+        let request = API.ChangeLikeRequest(
+            photoId: photoId,
+            token: token,
+            method: isLiked ? .post : .delete
+        )
+        
+        let data = try await networkService.fetchData(for: request)
+        
+        let result = try decoder.decode(LikeResult.self, from: data)
+        
+        return result.photo.likedByUser
+    }
 }
 
 private struct PhotoResult: Decodable {
     let id: String
-    let createdAt: Date?
-    let width, height: Double
+    let createdAt: Date
+    let width, height: Int
     let likedByUser: Bool
-    let description: String?
     let urls: UrlsResult
 }
 
@@ -124,19 +74,33 @@ private struct UrlsResult: Decodable {
     let small: String
 }
 
+private struct LikeResult: Decodable {
+    let photo: Photos
+}
+
+private struct Photos: Decodable {
+    let likedByUser: Bool
+}
+
 private extension PhotoResult {
-    func convertToPhotoModel() -> Photo {
+    func toPhoto() -> Photo {
         Photo(
-            id: self.id,
-            size: CGSize(width: self.width, height: self.height),
-            createdAt: self.createdAt?.dateString ?? "",
-            welcomeDescription: self.description ?? "",
-            thumbImageURL: self.urls.thumb,
-            largeImageURL: self.urls.full,
-            regular: self.urls.regular,
-            small: self.urls.small,
-            full: self.urls.full,
-            isLiked: self.likedByUser
+            id: id,
+            size: CGSize(width: width, height: height),
+            createdAt: createdAt,
+            urls: urls.toURL(),
+            isLiked: likedByUser
+        )
+    }
+}
+
+private extension UrlsResult {
+    func toURL() -> Photo.Urls {
+        Photo.Urls(
+            full: full,
+            thumb: thumb,
+            regular: regular,
+            small: small
         )
     }
 }

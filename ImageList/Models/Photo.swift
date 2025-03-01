@@ -4,25 +4,37 @@
 //
 //  Created by Александр Зиновьев on 18.02.2023.
 //
+
 import Foundation
 
-struct Photo: Hashable, Equatable {
+struct Photo {
     let id: String
     let size: CGSize
-    let createdAt: String
-    let welcomeDescription: String
-    let thumbImageURL: String
-    let largeImageURL: String
-    let regular: String
-    let small: String
-    let full: String
+    let createdAt: Date
+    let urls: Urls
     var isLiked: Bool
     
-    static func == (lhs: Photo, rhs: Photo) -> Bool {
-        return lhs.hashValue == rhs.hashValue
+    var imageURL: URL {
+        get throws {
+            if let url = URL(string: urls.small) {
+                return url
+            }
+            else {
+                throw Errors.badURL
+            }
+        }
     }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+}
+
+extension Photo {
+    struct Urls: Decodable {
+        let full: String
+        let thumb: String
+        let regular: String
+        let small: String
     }
+}
+
+private enum Errors: Error {
+    case badURL
 }

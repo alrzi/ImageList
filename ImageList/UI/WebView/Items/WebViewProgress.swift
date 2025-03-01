@@ -9,5 +9,5 @@ import Foundation
 
 enum WebViewProgress {
     case onGoing(Float)
-    case finished
+    case idle
 }

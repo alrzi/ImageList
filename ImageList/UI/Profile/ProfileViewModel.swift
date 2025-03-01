@@ -8,56 +8,111 @@
 import Foundation
 
 @MainActor
-protocol ProfileViewModelProtocol {
-    func onViewDidLoad()
+protocol ProfileViewModelProtocol: ObservableObject {
+    var state: State<ProfileModel> { get }
+    var profileLogOutConfirmationError: ProfileLogOutConfirmationError? { get set }
+       
+    func onAppear()
+    func onRetry()
     func onLogOut()
+    func onConfirmLogOut()
 }
 
 final class ProfileViewModel: ProfileViewModelProtocol {
-    private let profileImageURLService: ProfileImageURLServiceProtocol
-    private let profileService: ProfileServiceProtocol
-    private let oAuth2TokenStorage: OAuth2TokenStorageProtocol
-    private let webViewCleaner: WebViewCookieDataCleanerProtocol
-    private let profileImageService: ProfileImageServiceProtocol
+    private let profileImageURLService: any ProfileImageURLServiceProtocol
+    private let profileService: any ProfileServiceProtocol
+    private let oAuth2TokenStorage: any OAuth2TokenStorageProtocol
+    private let webViewCleaner: any WebViewCookieDataCleanerProtocol
+    private let profileImageService: any ProfileImageServiceProtocol
     
-    @Published private(set) var profileModel: ProfileModel?
+    private let eventsHandler: (ProfileOutput) -> Void
+        
+    @Published private(set) var state: State<ProfileModel> = .loading
+    @Published var profileLogOutConfirmationError: ProfileLogOutConfirmationError?
     
     init(
-        profileImageURLService: ProfileImageURLServiceProtocol,
-        profileService: ProfileServiceProtocol,
-        oAuth2TokenStorage: OAuth2TokenStorageProtocol,
-        webViewCleaner: WebViewCookieDataCleanerProtocol,
-        profileImageService: ProfileImageServiceProtocol
+        profileImageURLService: some ProfileImageURLServiceProtocol,
+        profileService: some ProfileServiceProtocol,
+        oAuth2TokenStorage: some OAuth2TokenStorageProtocol,
+        webViewCleaner: some WebViewCookieDataCleanerProtocol,
+        profileImageService: some ProfileImageServiceProtocol,
+        eventsHandler: @escaping (ProfileOutput) -> Void
     ) {
         self.profileImageURLService = profileImageURLService
         self.profileService = profileService
         self.oAuth2TokenStorage = oAuth2TokenStorage
         self.webViewCleaner = webViewCleaner
         self.profileImageService = profileImageService
+        self.eventsHandler = eventsHandler
+    }
+    
+    func onAppear() {
+        guard !state.isLoaded else {
+            return
+        }
         
-        Task {
+        updateProfile()
+    }
+    
+    func onRetry() {
+        updateProfile()
+    }
+    
+    func onLogOut() {
+        profileLogOutConfirmationError = .init(
+            title: "Пока, пока!",
+            message: "Уверены что хотите выйти?",
+            cancelButtonText: "Нет",
+            confirmationButtonText: "Да",
+            onConfirm: { [weak self] in self?.onConfirmLogOut() }
+        )
+    }
+    
+    func onConfirmLogOut() {
+        cleanCookie()
+        oAuth2TokenStorage.setToken(nil)
+        
+        eventsHandler(.onLogOut)
+    }
+}
+
+// MARK: - Private
+
+private extension ProfileViewModel {
+    func updateProfile() {
+        Task { [profileService, profileImageURLService, profileImageService] in
             do {
                 let profile = try await profileService.fetchProfile()
+                
+                state = .loaded(
+                    .init(
+                        name: profile.fullName,
+                        email: profile.loginName,
+                        greeting: profile.bio
+                    )
+                )
+                
                 let imageURL = try await profileImageURLService.fetchProfileImageUrl(username: profile.username)
                 let imageData = try await profileImageService.fetchProfileImage(url: imageURL)
                 
-                profileModel = .init(
-                    portraitImageData: imageData,
-                    name: profile.name,
-                    email: profile.loginName,
-                    greeting: profile.bio
+                state = .loaded(
+                    .init(
+                        name: profile.fullName,
+                        email: profile.loginName,
+                        greeting: profile.bio,
+                        imageData: imageData
+                    )
                 )
             }
             catch {
-                
+                state = .error
             }
         }
     }
     
-    func onViewDidLoad() { }
-    
-    func onLogOut() {
-        webViewCleaner.clean()
-        oAuth2TokenStorage.setToken(nil)
+    func cleanCookie() {
+        Task {
+            await webViewCleaner.clean(for: "unsplash.com")
+        }
     }
 }

@@ -6,22 +6,29 @@
 //
 
 import Foundation
+import UIKit.UIImage
 
 struct ProfileModel: Equatable {
-    let portraitImageData: Data
     let name: String
     let email: String
     let greeting: String
+    let image: UIImage?
     
     init(
-        portraitImageData: Data,
         name: String,
         email: String,
-        greeting: String
+        greeting: String,
+        imageData: Data? = nil
     ) {
-        self.portraitImageData = portraitImageData
         self.name = name
         self.email = email
         self.greeting = greeting
+                
+        if let data = imageData {
+            self.image = UIImage(data: data)
+        }
+        else {
+            self.image = nil
+        }
     }
 }

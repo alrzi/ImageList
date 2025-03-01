@@ -16,6 +16,7 @@ protocol AuthViewModelProtocol: ObservableObject {
 }
 
 final class AuthViewModel: AuthViewModelProtocol {
+    private let oAuth2TokenStorage: any OAuth2TokenStorageProtocol
     private let oAuth2Service: OAuth2ServiceProtocol
     private let code: String?
     
@@ -24,23 +25,41 @@ final class AuthViewModel: AuthViewModelProtocol {
     @Published private(set) var state: AuthViewState = .idle
         
     init(
-        oAuth2Service: OAuth2ServiceProtocol,
+        oAuth2TokenStorage: some OAuth2TokenStorageProtocol,
+        oAuth2Service: some  OAuth2ServiceProtocol,
         code: String?,
         next: @escaping (AuthViewOutput) -> Void
     ) {
+        self.oAuth2TokenStorage = oAuth2TokenStorage
         self.oAuth2Service = oAuth2Service
         self.code = code
         self.next = next
-        
+    }
+    
+    func onAppear() {
+        fetchTokenIfNeeded()
+    }
+    
+    func onNext() {
+        next(.authenticate)
+    }
+}
+
+// MARK: - Private
+
+private extension AuthViewModel {
+    func fetchTokenIfNeeded() {
         guard let code else {
             return
         }
                 
-        Task {
+        Task { [oAuth2Service] in
             do {
                 state = .loading
                 
                 let token = try await oAuth2Service.fetchOAuthToken(withCode: code)
+                
+                oAuth2TokenStorage.setToken(token)
                 
                 next(.authenticated(token: token))
             }
@@ -48,11 +67,5 @@ final class AuthViewModel: AuthViewModelProtocol {
                 state = .idle
             }
         }
-    }
-    
-    func onAppear() { }
-    
-    func onNext() {
-        next(.authenticate)
     }
 }

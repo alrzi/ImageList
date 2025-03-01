@@ -30,16 +30,18 @@ final class ProfileAssembly {
     }
     
     @MainActor
-    func assemble(_ context: ViewContext<(), ()>) -> UIViewController {
+    func assemble(_ context: ViewContext<(), ProfileOutput>) -> UIViewController {
         let viewModel = ProfileViewModel(
             profileImageURLService: profileImageURLService,
             profileService: profileService,
             oAuth2TokenStorage: oAuth2TokenStorage,
             webViewCleaner: webViewCleaner,
-            profileImageService: profileImageService
+            profileImageService: profileImageService,
+            eventsHandler: { context.output($0) }
         )
         
-        let viewController = ProfileViewController(viewModel: viewModel)
+        let view = ProfileView(viewModel: viewModel)
+        let viewController = UIHostingController(rootView: view)
         return viewController
     }
 }
