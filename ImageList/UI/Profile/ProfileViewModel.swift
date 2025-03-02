@@ -10,7 +10,8 @@ import Foundation
 @MainActor
 protocol ProfileViewModelProtocol: ObservableObject {
     var state: ViewModelState<ProfileModel> { get }
-    var profileLogOutConfirmationError: ErrorInfo? { get set }
+    var logOutConfirmationError: ErrorInfo? { get }
+    var isLogOutConfirmationErrorPresented: Bool { get set }
        
     func onAppear()
     func onRetry()
@@ -27,8 +28,9 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     
     private let eventsHandler: (ProfileOutput) -> Void
         
-    @Published private(set) var state: ViewModelState<ProfileModel> = .loading
-    @Published var profileLogOutConfirmationError: ErrorInfo?
+    @Published private(set) var state: ViewModelState<ProfileModel> = .idle
+    @Published private(set) var logOutConfirmationError: ErrorInfo?
+    @Published var isLogOutConfirmationErrorPresented = false
     
     init(
         profileImageURLService: some ProfileImageURLServiceProtocol,
@@ -63,13 +65,8 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     }
     
     func onLogOut() {
-        profileLogOutConfirmationError = .init(
-            title: "Пока, пока!",
-            message: "Уверены что хотите выйти?",
-            cancelButtonText: "Нет",
-            confirmationButtonText: "Да",
-            onConfirm: { [weak self] in self?.onConfirmLogOut() }
-        )
+        logOutConfirmationError = .profileLogOutConfirmationError { [weak self] in self?.onConfirmLogOut() }
+        isLogOutConfirmationErrorPresented = true
     }
     
     func onConfirmLogOut() {
@@ -83,9 +80,13 @@ final class ProfileViewModel: ProfileViewModelProtocol {
 
 private extension ProfileViewModel {
     func updateProfile() async {
+        guard !state.isLoading else {
+            return
+        }
+        
+        state = .loading
+        
         do {
-            state = .loading
-            
             let profile = try await profileService.fetchProfile()
             
             state = .loaded(
@@ -119,5 +120,16 @@ private extension ProfileViewModel {
         await oAuth2TokenStorage.cleanToken()
         
         eventsHandler(.onLogOut)
+    }
+}
+
+private extension ErrorInfo {
+    static func profileLogOutConfirmationError(onConfirm: @escaping () -> Void) -> Self {
+        .init(
+            message: "Уверены что хотите выйти?",
+            cancelButtonText: "Нет",
+            confirmationButtonText: "Да",
+            onConfirm: onConfirm
+        )
     }
 }

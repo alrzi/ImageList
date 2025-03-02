@@ -23,7 +23,7 @@ final class AuthViewModel: AuthViewModelProtocol {
     
     private let next: (AuthViewOutput) -> Void
     
-    @Published private(set) var state: ViewModelState<()> = .loaded(())
+    @Published private(set) var state: ViewModelState<()> = .idle
         
     init(
         oAuth2TokenStorage: some OAuth2TokenStorageProtocol,
@@ -44,7 +44,7 @@ final class AuthViewModel: AuthViewModelProtocol {
     }
     
     func onNext() {
-        next(.authenticate)
+        next(.onAuthenticate)
     }
     
     func onRetry() {
@@ -61,18 +61,25 @@ private extension AuthViewModel {
         guard let code else {
             return
         }
+        
+        guard !state.isLoading else {
+            return
+        }
+        
+        state = .loading
        
         do {
-            state = .loading
-            
             let token = try await oAuth2Service.fetchOAuthToken(withCode: code)
             
 //            Task.detached(priority: .background) { [oAuth2TokenStorage] in
 //
 //            }
+            
             await oAuth2TokenStorage.setToken(token)
             
-            next(.authenticated(token: token))
+            state = .loaded(())
+            
+            next(.onAuthenticated(token: token))
         }
         catch {
             state = .error

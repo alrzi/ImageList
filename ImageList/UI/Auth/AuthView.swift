@@ -23,7 +23,7 @@ extension AuthView: View {
     var body: some View {
         Group {
             switch viewModel.state {
-            case .loading:
+            case .loading, .idle:
                 AppProgressView()
                 
             case .loaded:

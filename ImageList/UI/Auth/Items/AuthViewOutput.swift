@@ -8,6 +8,6 @@
 import Foundation
 
 enum AuthViewOutput: Sendable {
-    case authenticated(token: String)
-    case authenticate
+    case onAuthenticated(token: String)
+    case onAuthenticate
 }

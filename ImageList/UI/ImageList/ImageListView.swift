@@ -22,7 +22,7 @@ extension ImageListView: View {
     var body: some View {
         Group {
             switch viewModel.state {
-            case .loading:
+            case .loading, .idle:
                 AppProgressView()
                 
             case .loaded(let models):
@@ -39,22 +39,55 @@ extension ImageListView: View {
                             )
                             .onTapGesture { viewModel.onImageTap(at: index) }
                             .onTapGesture(count: 2) { viewModel.onLikeTap(at: index) }
+                            .onAppear { viewModel.onImageAppear(at: index) }
+                        }
+                        
+                        if viewModel.paginationState.isLoading {
+                            ProgressView()
+                                .scaleEffect(2)
+                                .tint(.white)
+                                .padding(.vertical, 16)
                         }
                     }
+                    .refreshable {
+                        await viewModel.onRefresh()
+                    }
                     .padding(.horizontal, paddingHorizontal)
+                    .onAppear {
+                        UIRefreshControl.appearance().tintColor = UIColor.white
+                    }
                 }
                 
             case .error:
                 ErrorView(onRetry: viewModel.onRetry)
             }
         }
-        .alert(item: $viewModel.likeUpdateError) { error in
-            Alert(
-                title: Text(error.title),
-                message: Text(error.message),
-                dismissButton: .default(Text(error.confirmationButtonText))
-            )
-        }
+        .alert(
+            "Не удалось обновить лайк",
+            isPresented: $viewModel.isLikeUpdateAlertPresented,
+            presenting: viewModel.likeUpdateState.error,
+            actions: { error in
+                Button(action: { }) {
+                    Text(error.confirmationButtonText)
+                }
+            },
+            message: { error in
+                Text(error.message)
+            }
+        )
+        .alert(
+            "Не удалось подгрузить еще картинок",
+            isPresented: $viewModel.isPaginationAlertPresented,
+            presenting: viewModel.paginationState.error,
+            actions: { error in
+                Button(action: { }) {
+                    Text(error.confirmationButtonText)
+                }
+            },
+            message: { error in
+                Text(error.message)
+            }
+        )
         .background(.black)
         .onAppear(perform: viewModel.onAppear)
     }
@@ -70,7 +103,11 @@ extension ImageListView: View {
 
 private final class ViewModel: ImageListViewModelProtocol {
     let state: ViewModelState<[ImageListCellViewModel]>
-    var likeUpdateError: ErrorInfo?
+    let paginationState: LoadingState = .idle
+    let likeUpdateState: LoadingState = .idle
+    
+    var isPaginationAlertPresented = false
+    var isLikeUpdateAlertPresented = false
     
     init(state: ViewModelState<[ImageListCellViewModel]>) {
         self.state = state
@@ -78,6 +115,8 @@ private final class ViewModel: ImageListViewModelProtocol {
     
     func onAppear() { }
     func onRetry() { }
+    func onRefresh() { }
     func onLikeTap(at index: Int) { }
     func onImageTap(at index: Int) { }
+    func onImageAppear(at index: Int) { }
 }

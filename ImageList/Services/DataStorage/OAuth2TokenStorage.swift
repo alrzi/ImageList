@@ -19,7 +19,7 @@ protocol OAuth2TokenStorageProtocol: Sendable {
 }
 
 struct OAuth2TokenStorage: OAuth2TokenStorageProtocol {
-    let keychain: KeychainService
+    let keychain: KeychainServiceProtocol
     
     var token: String {
         get async throws(OAuth2TokenStorageError) {

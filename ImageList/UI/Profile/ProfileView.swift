@@ -20,7 +20,7 @@ extension ProfileView: View {
     var body: some View {
         Group {
             switch viewModel.state {
-            case .loading:
+            case .loading, .idle:
                 AppProgressView()
                 
             case .loaded(let model):
@@ -40,14 +40,21 @@ extension ProfileView: View {
         }
         .background(.black)
         .onAppear(perform: viewModel.onAppear)
-        .alert(item: $viewModel.profileLogOutConfirmationError) { error in
-            Alert(
-                title: Text(error.title),
-                message: Text(error.message),
-                primaryButton: .default(Text(error.confirmationButtonText), action: error.onConfirm),
-                secondaryButton: .cancel(Text(error.cancelButtonText))
-            )
-        }
+        .alert(
+            "Пока, пока!",
+            isPresented: $viewModel.isLogOutConfirmationErrorPresented,
+            presenting: viewModel.logOutConfirmationError,
+            actions: { error in
+                Button(error.confirmationButtonText, role: .destructive) {
+                    error.onConfirm()
+                }
+               
+                Button(error.cancelButtonText, role: .cancel) { }
+            },
+            message: { error in
+                Text(error.message)
+            }
+        )
     }
 }
 
@@ -115,7 +122,9 @@ private struct ProfileTopView: View {
 
 private final class ViewModel: ProfileViewModelProtocol {
     let state: ViewModelState<ProfileModel>
-    var profileLogOutConfirmationError: ErrorInfo?
+    let logOutConfirmationError: ErrorInfo? = nil
+    
+    var isLogOutConfirmationErrorPresented = false
     
     init(state: ViewModelState<ProfileModel>) {
         self.state = state

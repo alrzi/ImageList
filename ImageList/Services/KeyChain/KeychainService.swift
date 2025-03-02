@@ -1,5 +1,5 @@
 //
-//  KeychainServiceImpl.swift
+//  KeychainService.swift
 //  ImageList
 //
 //  Created by Александр Зиновьев on 02.03.2025.
@@ -7,13 +7,13 @@
 
 import Foundation
 
-protocol KeychainService: Sendable {
+protocol KeychainServiceProtocol: Sendable {
     func getValue(key: String) async -> String?
     func setValue(key: String, value: String) async
     func clean(key: String) async
 }
 
-actor KeychainServiceImpl: KeychainService {
+actor KeychainService: KeychainServiceProtocol {
     private let kSecClassValue = NSString(format: kSecClass)
     private let kSecAttrAccountValue = NSString(format: kSecAttrAccount)
     private let kSecValueDataValue = NSString(format: kSecValueData)

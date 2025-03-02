@@ -19,7 +19,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let decoder: JSONDecoder = .sharedDecoder
         let session = URLSession.shared
-        let keychain = KeychainServiceImpl()
+        let keychain = KeychainService()
         let networkService = NetworkClient(session: session)
         let oAuth2Service = OAuth2Service(networkService: networkService, decoder: decoder)
         let oAuth2TokenStorage = OAuth2TokenStorage(keychain: keychain)
@@ -50,6 +50,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let detailImageAssembly = DetailImageAssembly()
         
+        // coordinator
+        
         let window = UIWindow(windowScene: windowScene)
         
         let navigationController = UINavigationController()
@@ -57,8 +59,6 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
         navigationController.navigationBar.standardAppearance = appearance
-        
-        // coordinator
         
         let coordinator = LoginCoordinator(
             oAuth2TokenStorage: oAuth2TokenStorage,
@@ -175,8 +175,6 @@ private extension LoginCoordinator {
     
     func showHome() {
         let imagesListViewController = imageListAssembly.assemble(.init { handle(output: $0) })
-        navigationController.setViewControllers([imagesListViewController], animated: false)
-        
         let profileViewController = profileAssembly.assemble(.init { handle(output: $0) })
         
         let viewController = TabBarController(
@@ -184,6 +182,7 @@ private extension LoginCoordinator {
             profileViewController: profileViewController
         )
         
+        navigationController.setViewControllers([imagesListViewController], animated: false)
         window.rootViewController = viewController
     }
     
@@ -199,16 +198,10 @@ private extension LoginCoordinator {
 // MARK: - Handlers
 
 private extension LoginCoordinator {
-    func handle(output: ProfileOutput) {
-        switch output {
-        case .onLogOut: start()
-        }
-    }
-    
     func handle(output: AuthViewOutput) {
         switch output {
-        case .authenticated: showHome()
-        case .authenticate: showWebView()
+        case .onAuthenticated: showHome()
+        case .onAuthenticate: showWebView()
         }
     }
     
@@ -219,6 +212,12 @@ private extension LoginCoordinator {
     func handle(output: ImageListOutput) {
         switch output {
         case .onImageTap(let url): showDetailImage(for: url)
+        }
+    }
+    
+    func handle(output: ProfileOutput) {
+        switch output {
+        case .onLogOut: start()
         }
     }
 }
