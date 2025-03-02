@@ -77,6 +77,7 @@ struct ImageListCellView: View {
             isLiked: false,
             date: .now,
             imageSize: .init(width: 400, height: 300),
+            detailImageURLString: "",
             image: .empty
         ),
         onLikeTap: { }

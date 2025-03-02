@@ -48,8 +48,15 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             imageListService: imageListService
         )
         
+        let detailImageAssembly = DetailImageAssembly()
+        
         let window = UIWindow(windowScene: windowScene)
+        
         let navigationController = UINavigationController()
+        navigationController.modalTransitionStyle = .coverVertical
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        navigationController.navigationBar.standardAppearance = appearance
         
         // coordinator
         
@@ -59,6 +66,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             authAssembly: authAssembly,
             profileAssembly: profileAssembly,
             imageListAssembly: imageListAssembly,
+            detailImageAssembly: detailImageAssembly,
             window: window,
             navigationController: navigationController
         )
@@ -111,16 +119,18 @@ struct LoginCoordinator: Coordinator {
     private let authAssembly: AuthAssembly
     private let profileAssembly: ProfileAssembly
     private let imageListAssembly: ImageListAssembly
+    private let detailImageAssembly: DetailImageAssembly
     
     private let window: UIWindow
-    private var navigationController: UINavigationController
+    private let navigationController: UINavigationController
 
     init(
-        oAuth2TokenStorage: any OAuth2TokenStorageProtocol,
+        oAuth2TokenStorage: some OAuth2TokenStorageProtocol,
         webViewAssembly: WebViewAssembly,
         authAssembly: AuthAssembly,
         profileAssembly: ProfileAssembly,
         imageListAssembly: ImageListAssembly,
+        detailImageAssembly: DetailImageAssembly,
         window: UIWindow,
         navigationController: UINavigationController
     ) {
@@ -129,6 +139,7 @@ struct LoginCoordinator: Coordinator {
         self.authAssembly = authAssembly
         self.profileAssembly = profileAssembly
         self.imageListAssembly = imageListAssembly
+        self.detailImageAssembly = detailImageAssembly
         self.window = window
         self.navigationController = navigationController
     }
@@ -163,16 +174,25 @@ private extension LoginCoordinator {
     }
     
     func showHome() {
+        let imagesListViewController = imageListAssembly.assemble(.init { handle(output: $0) })
+        navigationController.setViewControllers([imagesListViewController], animated: false)
+        
         let profileViewController = profileAssembly.assemble(.init { handle(output: $0) })
-        let imagesListViewController = imageListAssembly.assemble(.init())
-        let imagesListNavigationController = UINavigationController(rootViewController: imagesListViewController)
         
         let viewController = TabBarController(
-            imagesListNavigationController: imagesListNavigationController,
+            imagesListNavigationController: navigationController,
             profileViewController: profileViewController
         )
         
         window.rootViewController = viewController
+    }
+    
+    func showDetailImage(for url: URL) {
+        let detailImageViewController = detailImageAssembly.assemble(.init(input: .init(url: url)))
+        detailImageViewController.modalPresentationStyle = .overFullScreen
+        detailImageViewController.modalTransitionStyle = .crossDissolve
+        
+        navigationController.present(detailImageViewController, animated: true)
     }
 }
 
@@ -187,16 +207,18 @@ private extension LoginCoordinator {
     
     func handle(output: AuthViewOutput) {
         switch output {
-        case .authenticated:
-            showHome()
-            navigationController.setViewControllers([], animated: false)
-        
-        case .authenticate:
-            showWebView()
+        case .authenticated: showHome()
+        case .authenticate: showWebView()
         }
     }
     
     func handle(output: WebViewOutput) {
         showAuthView(code: output.code)
+    }
+    
+    func handle(output: ImageListOutput) {
+        switch output {
+        case .onImageTap(let url): showDetailImage(for: url)
+        }
     }
 }

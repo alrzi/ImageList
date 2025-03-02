@@ -1,11 +1,11 @@
 import UIKit
 
 final class TabBarController: UITabBarController {
-    private let imagesListNavigationController: UIViewController
+    private let imagesListNavigationController: UINavigationController
     private let profileViewController: UIViewController
     
     init(
-        imagesListNavigationController: UIViewController,
+        imagesListNavigationController: UINavigationController,
         profileViewController: UIViewController
     ) {
         self.imagesListNavigationController = imagesListNavigationController
@@ -23,10 +23,41 @@ final class TabBarController: UITabBarController {
         
         setAppearance()
         
+        if #available(iOS 18.0, *) {
+            delegate = self
+        }
+        
         viewControllers = [
             generateViewController(imagesListNavigationController, image: .tabBarLeft),
             generateViewController(profileViewController, image: .tabBarRight)
         ]
+    }
+}
+
+extension TabBarController: UITabBarControllerDelegate {
+    func tabBarController(
+        _ tabBarController: UITabBarController,
+        animationControllerForTransitionFrom fromVC: UIViewController,
+        to toVC: UIViewController
+    ) -> UIViewControllerAnimatedTransitioning? {
+        self
+    }
+}
+
+extension TabBarController: UIViewControllerAnimatedTransitioning {
+    func transitionDuration(using transitionContext: (any UIViewControllerContextTransitioning)?) -> TimeInterval {
+        .zero
+    }
+    
+    func animateTransition(using transitionContext: any UIViewControllerContextTransitioning) {
+        guard let view = transitionContext.view(forKey: .to) else {
+            return
+        }
+        
+        let container = transitionContext.containerView
+        container.addSubview(view)
+        
+        transitionContext.completeTransition(true)
     }
 }
 
@@ -41,7 +72,6 @@ private extension TabBarController {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = .black
-        appearance.selectionIndicatorTintColor = .black
         tabBar.standardAppearance = appearance
         tabBar.scrollEdgeAppearance = appearance
         tabBar.tintColor = .white

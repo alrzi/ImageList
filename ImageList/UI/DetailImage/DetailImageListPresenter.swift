@@ -12,7 +12,7 @@ import UIKit
 protocol DetailImageListPresenterProtocol {
     var view: DetailImageListViewControllerProtocol? { get }
     
-    func fetchImage(with url: URL)
+    func fetchImage()
 }
 
 private enum DetailImageState {
@@ -23,6 +23,7 @@ private enum DetailImageState {
 
 final class DetailImageListPresenter {
     weak var view: DetailImageListViewControllerProtocol?
+    let url: URL
     
     private var imageState: DetailImageState = .loading {
         didSet {
@@ -30,8 +31,8 @@ final class DetailImageListPresenter {
         }
     }
     
-    init(view: DetailImageListViewControllerProtocol) {
-        self.view = view
+    init(url: URL) {
+        self.url = url
     }
     
     private func configureImageState() {
@@ -52,7 +53,7 @@ final class DetailImageListPresenter {
 }
 
 extension DetailImageListPresenter: DetailImageListPresenterProtocol {
-    func fetchImage(with url: URL) {
+    func fetchImage() {
         imageState = .loading
         
         KingfisherManager.shared.retrieveImage(with: url) { [weak self] result in

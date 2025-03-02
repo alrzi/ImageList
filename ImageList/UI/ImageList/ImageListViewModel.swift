@@ -22,6 +22,8 @@ final class ImageListViewModel: ImageListViewModelProtocol {
     private let imageListProvider: ImageListProviding
     private let imageListService: ImageListServiceProtocol
     
+    private let eventsHandler: (ImageListOutput) -> Void
+    
     private var page: Int = 1
     private var isLikeUpdateInProgress = false
     
@@ -30,10 +32,12 @@ final class ImageListViewModel: ImageListViewModelProtocol {
     
     init(
         imageListProvider: ImageListProviding,
-        imageListService: ImageListServiceProtocol
+        imageListService: ImageListServiceProtocol,
+        eventsHandler: @escaping (ImageListOutput) -> Void
     ) {
         self.imageListProvider = imageListProvider
         self.imageListService = imageListService
+        self.eventsHandler = eventsHandler
     }
     
     func onAppear() {
@@ -53,7 +57,16 @@ final class ImageListViewModel: ImageListViewModelProtocol {
     }
     
     func onImageTap(at index: Int) {
-        print("onImageTap")
+        guard case .loaded(var models) = state, let model = models.elementOrNil(at: index) else {
+            return
+        }
+        
+        do {
+            eventsHandler(.onImageTap(try model.detailImageURL))
+        }
+        catch {
+            debugPrint(error)
+        }
     }
     
     func onRetry() {
@@ -80,6 +93,7 @@ private extension ImageListViewModel {
                     isLiked: photo.isLiked,
                     date: photo.createdAt,
                     imageSize: photo.size,
+                    detailImageURLString: photo.urls.full,
                     image: imageData
                 )
             }

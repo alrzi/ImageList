@@ -16,12 +16,11 @@ struct Photo {
     
     var imageURL: URL {
         get throws {
-            if let url = URL(string: urls.small) {
-                return url
-            }
-            else {
+            guard let url = URL(string: urls.small) else {
                 throw Errors.badURL
             }
+            
+            return url
         }
     }
 }

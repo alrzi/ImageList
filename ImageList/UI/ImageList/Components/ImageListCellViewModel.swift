@@ -12,7 +12,18 @@ struct ImageListCellViewModel: Identifiable {
     var isLiked: Bool
     let date: Date
     let imageSize: CGSize
+    let detailImageURLString: String
     let image: Data
+    
+    var detailImageURL: URL {
+        get throws {
+            guard let url = URL(string: detailImageURLString) else {
+                throw Errors.badURL
+            }
+            
+            return url
+        }
+    }
     
     func imageSize(for screenWidth: CGFloat, paddingHorizontal: CGFloat) -> CGSize {
         let insets = EdgeInsets(top: 6, left: paddingHorizontal, right: paddingHorizontal, bottom: 6)
@@ -32,4 +43,8 @@ extension ImageListCellViewModel {
         result.isLiked = isLiked
         return result
     }
+}
+
+private enum Errors: Error {
+    case badURL
 }

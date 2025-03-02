@@ -19,6 +19,13 @@ extension ViewContext where InputType == Void {
     }
 }
 
+extension ViewContext where OutputType == Void {
+    init(input: InputType) {
+        self.input = input
+        self.output = { _ in }
+    }
+}
+
 extension ViewContext where OutputType == Void, InputType == Void {
     init () {
         self.input = ()

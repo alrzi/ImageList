@@ -21,10 +21,11 @@ final class ImageListAssembly {
     }
     
     @MainActor
-    func assemble(_ context: ViewContext<(), ()>) -> UIViewController {
+    func assemble(_ context: ViewContext<(), ImageListOutput>) -> UIViewController {
         let viewModel = ImageListViewModel(
             imageListProvider: imageListProvider,
-            imageListService: imageListService
+            imageListService: imageListService,
+            eventsHandler: { context.output($0) }
         )
         
         let view = ImageListView(viewModel: viewModel)
