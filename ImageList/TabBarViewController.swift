@@ -1,14 +1,14 @@
 import UIKit
 
 final class TabBarController: UITabBarController {
-    private let imagesListViewController: UIViewController
+    private let imagesListNavigationController: UIViewController
     private let profileViewController: UIViewController
     
     init(
-        imagesListViewController: UIViewController,
+        imagesListNavigationController: UIViewController,
         profileViewController: UIViewController
     ) {
-        self.imagesListViewController = imagesListViewController
+        self.imagesListNavigationController = imagesListNavigationController
         self.profileViewController = profileViewController
         
         super.init(nibName: nil, bundle: nil)
@@ -24,7 +24,7 @@ final class TabBarController: UITabBarController {
         setAppearance()
         
         viewControllers = [
-            generateViewController(imagesListViewController, image: .tabBarLeft),
+            generateViewController(imagesListNavigationController, image: .tabBarLeft),
             generateViewController(profileViewController, image: .tabBarRight)
         ]
     }
@@ -40,7 +40,7 @@ private extension TabBarController {
     func setAppearance() {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .myBlack
+        appearance.backgroundColor = .black
         appearance.selectionIndicatorTintColor = .black
         tabBar.standardAppearance = appearance
         tabBar.scrollEdgeAppearance = appearance

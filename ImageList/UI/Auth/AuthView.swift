@@ -23,7 +23,10 @@ extension AuthView: View {
     var body: some View {
         Group {
             switch viewModel.state {
-            case .idle:
+            case .loading:
+                AppProgressView()
+                
+            case .loaded:
                 VStack {
                     Spacer()
                     
@@ -46,13 +49,8 @@ extension AuthView: View {
                     .padding(.bottom, 16)
                 }
                 
-            case .loading:
-                ZStack {
-                    ProgressView()
-                        .scaleEffect(2)
-                        .tint(.white)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            case .error:
+                ErrorView(onRetry: viewModel.onRetry)
             }
         }
         .background(.black)
@@ -65,18 +63,23 @@ extension AuthView: View {
     AuthView(viewModel: ViewModel(state: .loading))
 }
 
-#Preview("Idle") {
-    AuthView(viewModel: ViewModel(state: .idle))
+#Preview("Loaded") {
+    AuthView(viewModel: ViewModel(state: .loaded(())))
+}
+
+#Preview("Error") {
+    AuthView(viewModel: ViewModel(state: .error))
 }
 
 private final class ViewModel: AuthViewModelProtocol {
-    let state: AuthViewState
+    let state: ViewModelState<()>
     
-    init(state: AuthViewState) {
+    init(state: ViewModelState<()>) {
         self.state = state
     }
     
     func onAppear() { }
     func onNext() { }
+    func onRetry() { }
 }
 #endif

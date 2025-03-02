@@ -1,13 +1,13 @@
 //
-//  ProfileLogOutConfirmationError.swift
+//  ErrorInfo.swift
 //  ImageList
 //
-//  Created by Александр Зиновьев on 28.02.2025.
+//  Created by Александр Зиновьев on 01.03.2025.
 //
 
 import Foundation
 
-struct ProfileLogOutConfirmationError: Identifiable {
+struct ErrorInfo: Identifiable {
     let id = UUID()
     let title: String
     let message: String

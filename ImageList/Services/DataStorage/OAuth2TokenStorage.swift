@@ -6,42 +6,40 @@
 //
 
 import Foundation
-import SwiftKeychainWrapper
 
 enum OAuth2TokenStorageError: Error {
     case tokenNotFound
 }
 
-protocol OAuth2TokenStorageProtocol: AnyObject {
-    var token: String { get throws(OAuth2TokenStorageError) }
+protocol OAuth2TokenStorageProtocol: Sendable {
+    var token: String { get async throws(OAuth2TokenStorageError) }
     
-    func setToken(_ token: String?)
+    func setToken(_ token: String) async
+    func cleanToken() async
 }
 
-final class OAuth2TokenStorage: OAuth2TokenStorageProtocol {
-    private let keyChain = KeychainWrapper.standard
+struct OAuth2TokenStorage: OAuth2TokenStorageProtocol {
+    let keychain: KeychainService
     
     var token: String {
-        get throws(OAuth2TokenStorageError) {
-            if let token = keyChain.string(forKey: Key.token.rawValue) {
-                token
-            }
-            else {
+        get async throws(OAuth2TokenStorageError) {
+            guard let token = await keychain.getValue(key: Key.oAuth2TokenForUnsplash.rawValue) else {
                 throw .tokenNotFound
             }
+            
+            return token
         }
     }
     
-    func setToken(_ token: String?) {
-        if let token {
-            keyChain.set(token, forKey: Key.token.rawValue)
-        }
-        else {
-            keyChain.removeObject(forKey: Key.token.rawValue)
-        }
+    func setToken(_ token: String) async {
+        await keychain.setValue(key: Key.oAuth2TokenForUnsplash.rawValue, value: token)
+    }
+    
+    func cleanToken() async {
+        await keychain.clean(key: Key.oAuth2TokenForUnsplash.rawValue)
     }
 }
 
 private enum Key: String {
-    case token
+    case oAuth2TokenForUnsplash
 }

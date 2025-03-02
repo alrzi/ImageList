@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		F9C3F9802998F6A100133F25 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = F9C3F97F2998F6A100133F25 /* Kingfisher */; };
-		F9F39003299FBF090043CE8C /* SwiftKeychainWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = F9F39002299FBF090043CE8C /* SwiftKeychainWrapper */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,7 +62,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F9C3F9802998F6A100133F25 /* Kingfisher in Frameworks */,
-				F9F39003299FBF090043CE8C /* SwiftKeychainWrapper in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,7 +123,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F9843EFF295847EC00EB2CF4 /* Build configuration list for PBXNativeTarget "ImageList" */;
 			buildPhases = (
-				F9B1A57629587B91002D6394 /* SwiftLint */,
 				F9843EE7295847EA00EB2CF4 /* Sources */,
 				F9843EE8295847EA00EB2CF4 /* Frameworks */,
 				F9843EE9295847EA00EB2CF4 /* Resources */,
@@ -133,6 +130,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				F9A75E482D745D2E00B7620F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				F9DF9ECC2D6658E600935115 /* ImageList */,
@@ -140,7 +138,6 @@
 			name = ImageList;
 			packageProductDependencies = (
 				F9C3F97F2998F6A100133F25 /* Kingfisher */,
-				F9F39002299FBF090043CE8C /* SwiftKeychainWrapper */,
 			);
 			productName = ImageList;
 			productReference = F9843EEB295847EA00EB2CF4 /* ImageList.app */;
@@ -201,7 +198,7 @@
 			mainGroup = F9843EE2295847EA00EB2CF4;
 			packageReferences = (
 				F9C3F97E2998F6A100133F25 /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				F9F39001299FBF090043CE8C /* XCRemoteSwiftPackageReference "SwiftKeychainWrapper" */,
+				F9A75E462D745CFF00B7620F /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 			);
 			productRefGroup = F9843EEC295847EA00EB2CF4 /* Products */;
 			projectDirPath = "";
@@ -238,28 +235,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		F9B1A57629587B91002D6394 /* SwiftLint */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 12;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = SwiftLint;
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		F909C77029C32A5500CBA2E9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -294,6 +269,10 @@
 			isa = PBXTargetDependency;
 			target = F9843EEA295847EA00EB2CF4 /* ImageList */;
 			targetProxy = F9A2913729B74A1C00CE9BE4 /* PBXContainerItemProxy */;
+		};
+		F9A75E482D745D2E00B7620F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = F9A75E472D745D2E00B7620F /* SwiftLintBuildToolPlugin */;
 		};
 /* End PBXTargetDependency section */
 
@@ -594,6 +573,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		F9A75E462D745CFF00B7620F /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.58.2;
+			};
+		};
 		F9C3F97E2998F6A100133F25 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher";
@@ -602,26 +589,18 @@
 				kind = branch;
 			};
 		};
-		F9F39001299FBF090043CE8C /* XCRemoteSwiftPackageReference "SwiftKeychainWrapper" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/jrendel/SwiftKeychainWrapper";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		F9A75E472D745D2E00B7620F /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9A75E462D745CFF00B7620F /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
 		F9C3F97F2998F6A100133F25 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F9C3F97E2998F6A100133F25 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
-		};
-		F9F39002299FBF090043CE8C /* SwiftKeychainWrapper */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F9F39001299FBF090043CE8C /* XCRemoteSwiftPackageReference "SwiftKeychainWrapper" */;
-			productName = SwiftKeychainWrapper;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

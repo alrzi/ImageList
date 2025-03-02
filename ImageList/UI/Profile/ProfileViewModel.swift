@@ -9,8 +9,8 @@ import Foundation
 
 @MainActor
 protocol ProfileViewModelProtocol: ObservableObject {
-    var state: State<ProfileModel> { get }
-    var profileLogOutConfirmationError: ProfileLogOutConfirmationError? { get set }
+    var state: ViewModelState<ProfileModel> { get }
+    var profileLogOutConfirmationError: ErrorInfo? { get set }
        
     func onAppear()
     func onRetry()
@@ -27,8 +27,8 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     
     private let eventsHandler: (ProfileOutput) -> Void
         
-    @Published private(set) var state: State<ProfileModel> = .loading
-    @Published var profileLogOutConfirmationError: ProfileLogOutConfirmationError?
+    @Published private(set) var state: ViewModelState<ProfileModel> = .loading
+    @Published var profileLogOutConfirmationError: ErrorInfo?
     
     init(
         profileImageURLService: some ProfileImageURLServiceProtocol,
@@ -51,11 +51,15 @@ final class ProfileViewModel: ProfileViewModelProtocol {
             return
         }
         
-        updateProfile()
+        Task {
+            await updateProfile()
+        }
     }
     
     func onRetry() {
-        updateProfile()
+        Task {
+            await updateProfile()
+        }
     }
     
     func onLogOut() {
@@ -69,50 +73,51 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     }
     
     func onConfirmLogOut() {
-        cleanCookie()
-        oAuth2TokenStorage.setToken(nil)
-        
-        eventsHandler(.onLogOut)
+        Task.detached(priority: .background) { [weak self] in
+            await self?.cleanCookie()
+        }
     }
 }
 
 // MARK: - Private
 
 private extension ProfileViewModel {
-    func updateProfile() {
-        Task { [profileService, profileImageURLService, profileImageService] in
-            do {
-                let profile = try await profileService.fetchProfile()
-                
-                state = .loaded(
-                    .init(
-                        name: profile.fullName,
-                        email: profile.loginName,
-                        greeting: profile.bio
-                    )
+    func updateProfile() async {
+        do {
+            state = .loading
+            
+            let profile = try await profileService.fetchProfile()
+            
+            state = .loaded(
+                .init(
+                    name: profile.fullName,
+                    email: profile.loginName,
+                    greeting: profile.bio
                 )
-                
-                let imageURL = try await profileImageURLService.fetchProfileImageUrl(username: profile.username)
-                let imageData = try await profileImageService.fetchProfileImage(url: imageURL)
-                
-                state = .loaded(
-                    .init(
-                        name: profile.fullName,
-                        email: profile.loginName,
-                        greeting: profile.bio,
-                        imageData: imageData
-                    )
+            )
+            
+            let imageURL = try await profileImageURLService.fetchProfileImageUrl(username: profile.username)
+            let imageData = try await profileImageService.fetchProfileImage(url: imageURL)
+            
+            state = .loaded(
+                .init(
+                    name: profile.fullName,
+                    email: profile.loginName,
+                    greeting: profile.bio,
+                    imageData: imageData
                 )
-            }
-            catch {
-                state = .error
-            }
+            )
+        }
+        catch {
+            state = .error
+            debugPrint(error)
         }
     }
     
-    func cleanCookie() {
-        Task {
-            await webViewCleaner.clean(for: "unsplash.com")
-        }
+    func cleanCookie() async {
+        await webViewCleaner.clean(for: "unsplash.com")
+        await oAuth2TokenStorage.cleanToken()
+        
+        eventsHandler(.onLogOut)
     }
 }

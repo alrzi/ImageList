@@ -1,4 +1,4 @@
-enum Scope {
+enum UnsplashAccessScope {
     case `public`
     case readUser
     case writeLikes

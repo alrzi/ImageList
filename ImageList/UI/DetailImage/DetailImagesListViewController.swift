@@ -27,7 +27,7 @@ final class DetailImagesListViewController: UIViewController {
     
     private lazy var backButton: UIButton = {
         let button = UIButton()
-        button.setImage(.backward, for: .normal)
+        button.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
         button.accessibilityIdentifier = "backButton"
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(goBack), for: .touchUpInside)
@@ -92,7 +92,7 @@ final class DetailImagesListViewController: UIViewController {
 // MARK: - UI
 private extension DetailImagesListViewController {
     func setViews() {
-        view.backgroundColor = .myBlack
+        view.backgroundColor = .black
         view.addSubview(scrollView)
         view.addSubview(backButton)
         view.addSubview(shareButton)
@@ -111,7 +111,7 @@ private extension DetailImagesListViewController {
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             
             // backButton
-            backButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor,constant: 17),
+            backButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 17),
             backButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 60),
             
             // shareButton
@@ -160,6 +160,6 @@ extension DetailImagesListViewController: @preconcurrency DetailImageListViewCon
     }
     
     func showAlertAndMaybeTryAgainWith(url: URL) {
-
+        print("showAlertAndMaybeTryAgainWith")
     }
 }

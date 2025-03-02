@@ -8,7 +8,7 @@
 import Foundation
 
 extension API {
-    struct ProfileRequest: RequestConvertible {
+    struct ProfileRequest: RequestConvertible, Sendable {
         let token: String
         let method: HTTPMethod = .get
         let timeoutInterval: TimeInterval = 30

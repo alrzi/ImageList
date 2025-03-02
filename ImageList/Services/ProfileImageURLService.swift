@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol ProfileImageURLServiceProtocol {
+protocol ProfileImageURLServiceProtocol: Sendable {
     func fetchProfileImageUrl(username: String) async throws -> URL
 }
 
@@ -27,7 +27,7 @@ struct ProfileImageURLService: ProfileImageURLServiceProtocol {
     }
     
     func fetchProfileImageUrl(username: String) async throws -> URL {
-        let token = try oAuth2TokenStorage.token
+        let token = try await oAuth2TokenStorage.token
                 
         let request = API.ProfileImageURLRequest(
             token: token,

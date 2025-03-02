@@ -8,7 +8,7 @@
 import Foundation
 
 extension API {
-    struct ProfileImageURLRequest: RequestConvertible {
+    struct ProfileImageURLRequest: RequestConvertible, Sendable {
         let token: String
         let username: String
         let method: HTTPMethod = .get

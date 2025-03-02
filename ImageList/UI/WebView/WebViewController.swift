@@ -10,8 +10,7 @@ import WebKit
 import Combine
 
 final class WebViewController: UIViewController {
-    @objc
-    private lazy var webView: WKWebView = {
+    @objc private lazy var webView: WKWebView = {
         let webView = WKWebView()
         webView.accessibilityIdentifier = "WebView"
         webView.translatesAutoresizingMaskIntoConstraints = false
@@ -24,7 +23,7 @@ final class WebViewController: UIViewController {
         let progressView = UIProgressView()
         progressView.translatesAutoresizingMaskIntoConstraints = false
         progressView.progressViewStyle = .default
-        progressView.tintColor = .myBackground
+        progressView.tintColor = .black
         return progressView
     }()
     

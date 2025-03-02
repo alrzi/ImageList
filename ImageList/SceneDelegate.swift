@@ -19,9 +19,10 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let decoder: JSONDecoder = .sharedDecoder
         let session = URLSession.shared
+        let keychain = KeychainServiceImpl()
         let networkService = NetworkClient(session: session)
         let oAuth2Service = OAuth2Service(networkService: networkService, decoder: decoder)
-        let oAuth2TokenStorage = OAuth2TokenStorage()
+        let oAuth2TokenStorage = OAuth2TokenStorage(keychain: keychain)
         let profileImageURLService = ProfileImageURLService(decoder: decoder, networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
         let profileService = ProfileService(decoder: decoder, networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
         let webViewCleaner = WebViewCookieDataCleaner()
@@ -49,6 +50,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let window = UIWindow(windowScene: windowScene)
         let navigationController = UINavigationController()
+        
+        // coordinator
         
         let coordinator = LoginCoordinator(
             oAuth2TokenStorage: oAuth2TokenStorage,
@@ -131,70 +134,69 @@ struct LoginCoordinator: Coordinator {
     }
    
     func start() {
-        do {
-            _ = try oAuth2TokenStorage.token
-            
-            showHome()
-        }
-        catch {
-            window.rootViewController = navigationController
-            
-            showAuthView()
+        Task {
+            if (try? await oAuth2TokenStorage.token) != nil {
+                showHome()
+            }
+            else {
+                window.rootViewController = navigationController
+                
+                showAuthView()
+            }
         }
     }
 }
 
+// MARK: - Private
+
 private extension LoginCoordinator {
     func showAuthView(code: String? = nil) {
-        let viewController = authAssembly
-            .assemble(
-                .init(input: .init(code: code)) { output in
-                    Task { @MainActor in
-                        switch output {
-                        case .authenticated:
-                            showHome()
-                            navigationController.setViewControllers([], animated: false)
-                        
-                        case .authenticate:
-                            showWebView()
-                        }
-                    }
-                }
-            )
+        let viewController = authAssembly.assemble(.init(input: .init(code: code)) { handle(output: $0) })
         
         navigationController.setViewControllers([viewController], animated: true)
     }
     
     func showWebView() {
-        let viewController = webViewAssembly
-            .assemble(
-                .init { output in
-                    Task { @MainActor in
-                        showAuthView(code: output.code)
-                    }
-                }
-            )
+        let viewController = webViewAssembly.assemble(.init { handle(output: $0) })
         
         navigationController.pushViewController(viewController, animated: true)
     }
     
     func showHome() {
-        let profileAssembly = profileAssembly.assemble(
-            .init { output in
-                switch output {
-                case .onLogOut:
-                    Task { @MainActor in
-                        start()
-                    }
-                }
-            }
-        )
+        let profileViewController = profileAssembly.assemble(.init { handle(output: $0) })
+        let imagesListViewController = imageListAssembly.assemble(.init())
+        let imagesListNavigationController = UINavigationController(rootViewController: imagesListViewController)
         
         let viewController = TabBarController(
-            imagesListViewController: imageListAssembly.assemble(.init()),
-            profileViewController: profileAssembly
+            imagesListNavigationController: imagesListNavigationController,
+            profileViewController: profileViewController
         )
         
         window.rootViewController = viewController
+    }
+}
+
+// MARK: - Handlers
+
+private extension LoginCoordinator {
+    func handle(output: ProfileOutput) {
+        switch output {
+        case .onLogOut: start()
+        }
+    }
+    
+    func handle(output: AuthViewOutput) {
+        switch output {
+        case .authenticated:
+            showHome()
+            navigationController.setViewControllers([], animated: false)
+        
+        case .authenticate:
+            showWebView()
+        }
+    }
+    
+    func handle(output: WebViewOutput) {
+        showAuthView(code: output.code)
     }
 }

@@ -19,5 +19,6 @@ struct AppProgressView: View {
 }
 
 #Preview {
-    ProgressView()
+    AppProgressView()
+        .background(.black)
 }

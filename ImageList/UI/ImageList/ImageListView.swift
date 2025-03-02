@@ -38,15 +38,23 @@ extension ImageListView: View {
                                 height: model.imageSize(for: proxy.size.width, paddingHorizontal: paddingHorizontal).height
                             )
                             .onTapGesture { viewModel.onImageTap(at: index) }
+                            .onTapGesture(count: 2) { viewModel.onLikeTap(at: index) }
                         }
                     }
+                    .padding(.horizontal, paddingHorizontal)
                 }
                 
             case .error:
                 ErrorView(onRetry: viewModel.onRetry)
             }
         }
-        .padding(.horizontal, paddingHorizontal)
+        .alert(item: $viewModel.likeUpdateError) { error in
+            Alert(
+                title: Text(error.title),
+                message: Text(error.message),
+                dismissButton: .default(Text(error.confirmationButtonText))
+            )
+        }
         .background(.black)
         .onAppear(perform: viewModel.onAppear)
     }
@@ -61,9 +69,10 @@ extension ImageListView: View {
 }
 
 private final class ViewModel: ImageListViewModelProtocol {
-    let state: State<[ImageListCellViewModel]>
+    let state: ViewModelState<[ImageListCellViewModel]>
+    var likeUpdateError: ErrorInfo?
     
-    init(state: State<[ImageListCellViewModel]>) {
+    init(state: ViewModelState<[ImageListCellViewModel]>) {
         self.state = state
     }
     

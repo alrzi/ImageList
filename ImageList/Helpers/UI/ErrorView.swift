@@ -43,5 +43,11 @@ struct ErrorView: View {
         }
         .multilineTextAlignment(.center)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 16)
     }
+}
+
+#Preview {
+    ErrorView(onRetry: { })
+        .background(.black)
 }

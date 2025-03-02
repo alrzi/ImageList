@@ -14,7 +14,7 @@ extension API {
         let authConfiguration: UnsplashAuthConfiguration
         
         func asURLRequest() throws(RequestConvertibleError) -> URLRequest {
-            guard var components = URLComponents(string: authConfiguration.authorizeURLString) else {
+            guard var components = URLComponents(string: authConfiguration.oAuthHost) else {
                 throw .malformedURLString
             }
             
@@ -25,6 +25,7 @@ extension API {
                 URLQueryItem(name: "scope", value: authConfiguration.accessScope)
             ]
                         
+            components.path = "/oauth/authorize"
             components.queryItems = queryItems
             
             guard let url = components.url else {

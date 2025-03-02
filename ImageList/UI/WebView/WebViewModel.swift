@@ -36,7 +36,7 @@ final class WebViewModel: WebViewModelProtocol {
             request = try API.AuthRequest(authConfiguration: .standard).asURLRequest()
         }
         catch {
-            
+            debugPrint(error)
         }
     }
     

@@ -9,10 +9,11 @@ import Foundation
 
 @MainActor
 protocol AuthViewModelProtocol: ObservableObject {
-    var state: AuthViewState { get }
+    var state: ViewModelState<()> { get }
     
     func onAppear()
     func onNext()
+    func onRetry()
 }
 
 final class AuthViewModel: AuthViewModelProtocol {
@@ -22,7 +23,7 @@ final class AuthViewModel: AuthViewModelProtocol {
     
     private let next: (AuthViewOutput) -> Void
     
-    @Published private(set) var state: AuthViewState = .idle
+    @Published private(set) var state: ViewModelState<()> = .loaded(())
         
     init(
         oAuth2TokenStorage: some OAuth2TokenStorageProtocol,
@@ -37,35 +38,45 @@ final class AuthViewModel: AuthViewModelProtocol {
     }
     
     func onAppear() {
-        fetchTokenIfNeeded()
+        Task {
+            await fetchTokenIfNeeded()
+        }
     }
     
     func onNext() {
         next(.authenticate)
+    }
+    
+    func onRetry() {
+        Task {
+            await fetchTokenIfNeeded()
+        }
     }
 }
 
 // MARK: - Private
 
 private extension AuthViewModel {
-    func fetchTokenIfNeeded() {
+    func fetchTokenIfNeeded() async {
         guard let code else {
             return
         }
-                
-        Task { [oAuth2Service] in
-            do {
-                state = .loading
-                
-                let token = try await oAuth2Service.fetchOAuthToken(withCode: code)
-                
-                oAuth2TokenStorage.setToken(token)
-                
-                next(.authenticated(token: token))
-            }
-            catch {
-                state = .idle
-            }
+       
+        do {
+            state = .loading
+            
+            let token = try await oAuth2Service.fetchOAuthToken(withCode: code)
+            
+//            Task.detached(priority: .background) { [oAuth2TokenStorage] in
+//
+//            }
+            await oAuth2TokenStorage.setToken(token)
+            
+            next(.authenticated(token: token))
+        }
+        catch {
+            state = .error
+            debugPrint(error)
         }
     }
 }

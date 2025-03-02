@@ -40,17 +40,30 @@ struct ImageListCellView: View {
                     }
                     .overlay(alignment: .topTrailing) {
                         Button(action: onLikeTap) {
-                            Image(systemName: "heart")
-                                .resizable()
-                                .symbolVariant(model.isLiked ? .fill : .none)
-                                .foregroundStyle(model.isLiked ? .red : .white.opacity(0.5))
-                                .frame(width: 22, height: 18)
-                                .padding()
+                            if model.isLiked {
+                                Image(systemName: "heart")
+                                    .resizable()
+                                    .symbolVariant(.fill)
+                                    .foregroundStyle(.red)
+                                    .frame(width: 22, height: 18)
+                                    .padding()
+                                    .transition(.asymmetric(insertion: .scale(scale: 2), removal: .identity))
+                            }
+                            else {
+                                Image(systemName: "heart")
+                                    .resizable()
+                                    .symbolVariant(.none)
+                                    .foregroundStyle(.white.opacity(0.5))
+                                    .frame(width: 22, height: 18)
+                                    .padding()
+                                    .transition(.identity)
+                            }
                         }
+                        .animation(.easeInOut(duration: 0.5), value: model.isLiked)
                     }
             }
             else {
-                RoundedRectangle(cornerRadius: 12)                    
+                RoundedRectangle(cornerRadius: 12)
             }
         }
         .clipShape(.rect(cornerRadius: 16))

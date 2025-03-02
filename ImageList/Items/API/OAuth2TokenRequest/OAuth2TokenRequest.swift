@@ -15,7 +15,7 @@ extension API {
         let authConfiguration: UnsplashAuthConfiguration = .standard
         
         func asURLRequest() throws(RequestConvertibleError) -> URLRequest {
-            guard var components = URLComponents(string: authConfiguration.tokenURLString) else {
+            guard var components = URLComponents(string: authConfiguration.oAuthHost) else {
                 throw .malformedURLString
             }
             
@@ -26,7 +26,8 @@ extension API {
                 URLQueryItem(name: "code", value: code),
                 URLQueryItem(name: "grant_type", value: "authorization_code")
             ]
-            
+                        
+            components.path = "/oauth/token"
             components.queryItems = queryItems
             
             guard let url = components.url else {

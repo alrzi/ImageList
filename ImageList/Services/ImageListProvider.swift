@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol ImageListProviding {
+protocol ImageListProviding: Sendable {
     func fetchPhotosNextPage(_ page: Int) async throws -> [(Photo, imageData: Data)]
 }
 

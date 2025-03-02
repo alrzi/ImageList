@@ -1,5 +1,5 @@
 {
-  "originHash" : "3fc1c8e44222e4d92393cee179a8595c83e9e4bba0ba173907f0f32e3ac78704",
+  "originHash" : "81a5ab9bd826e041ecc020053c77ffca250011e0a781f74ade8315bd1d321f03",
   "pins" : [
     {
       "identity" : "kingfisher",
@@ -11,12 +11,12 @@
       }
     },
     {
-      "identity" : "swiftkeychainwrapper",
+      "identity" : "swiftlintplugins",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/jrendel/SwiftKeychainWrapper",
+      "location" : "https://github.com/SimplyDanny/SwiftLintPlugins",
       "state" : {
-        "revision" : "185a3165346a03767101c4f62e9a545a0fe0530f",
-        "version" : "4.0.1"
+        "revision" : "7a3d77f3dd9f91d5cea138e52c20cfceabf352de",
+        "version" : "0.58.2"
       }
     }
   ],

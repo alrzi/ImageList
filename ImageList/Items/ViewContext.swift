@@ -9,11 +9,11 @@ import Foundation
 
 struct ViewContext<InputType: Sendable, OutputType: Sendable>: Sendable {
     let input: InputType
-    let output: @Sendable (OutputType) -> Void
+    let output: @MainActor @Sendable (OutputType) -> Void
 }
 
 extension ViewContext where InputType == Void {
-    init(output: @Sendable @escaping (OutputType) -> Void) {
+    init(output: @MainActor @Sendable @escaping (OutputType) -> Void) {
         self.input = ()
         self.output = output
     }

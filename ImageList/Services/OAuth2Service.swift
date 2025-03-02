@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol OAuth2ServiceProtocol {
+protocol OAuth2ServiceProtocol: Sendable {
     func fetchOAuthToken(withCode code: String) async throws -> String
 }
 

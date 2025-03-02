@@ -1,31 +1,13 @@
 import UIKit
 
 extension UIColor {
-    static var myBackground: UIColor {
-        UIColor(named: "myBackground")!
-    }
-    static var myBlack: UIColor {
-        UIColor(named: "myBlack")!
-    }
-    static var myBlue: UIColor {
-        UIColor(named: "myBlue")!
-    }
-    static var myGradientStart: UIColor {
-        UIColor(named: "myGradientStart")!
-    }
-    static var myGradientStop: UIColor {
-        UIColor(named: "myGradientStop")!
-    }
-    static var myGray: UIColor {
-        UIColor(named: "myGray")!
-    }
-    static var myRed: UIColor {
-        UIColor(named: "myRed")!
-    }
-    static var myWhite50: UIColor {
-        UIColor(named: "myWhite50")!
-    }
-    static var myShimmerColor: UIColor {
-        UIColor(white: 0.85, alpha: 1.0)
-    }
+    static let myBackground = UIColor(named: "myBackground")!
+    static let myBlack = UIColor(named: "myBlack")!
+    static let myBlue = UIColor(named: "myBlue")!
+    static let myGray = UIColor(named: "myGray")!
+    static let myRed = UIColor(named: "myRed")!
+    static let myWhite50 = UIColor(named: "myWhite50")!
+    static let myShimmerColor = UIColor(white: 0.85, alpha: 1.0)
+    static let myGradientStart = UIColor(named: "myGradientStart")!
+    static let myGradientStop = UIColor(named: "myGradientStop")!
 }

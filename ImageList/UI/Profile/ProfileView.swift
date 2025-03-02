@@ -32,12 +32,12 @@ extension ProfileView: View {
                     
                     Spacer()
                 }
+                .padding(.horizontal, 16)
                 
             case .error:
                 ErrorView(onRetry: viewModel.onRetry)
             }
         }
-        .padding(.horizontal, 16)
         .background(.black)
         .onAppear(perform: viewModel.onAppear)
         .alert(item: $viewModel.profileLogOutConfirmationError) { error in
@@ -114,10 +114,10 @@ private struct ProfileTopView: View {
 }
 
 private final class ViewModel: ProfileViewModelProtocol {
-    let state: State<ProfileModel>
-    var profileLogOutConfirmationError: ProfileLogOutConfirmationError?
+    let state: ViewModelState<ProfileModel>
+    var profileLogOutConfirmationError: ErrorInfo?
     
-    init(state: State<ProfileModel>) {
+    init(state: ViewModelState<ProfileModel>) {
         self.state = state
     }
     

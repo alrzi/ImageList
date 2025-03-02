@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol ProfileServiceProtocol {
+protocol ProfileServiceProtocol: Sendable {
     func fetchProfile() async throws -> Profile
 }
 
@@ -27,7 +27,7 @@ struct ProfileService: ProfileServiceProtocol {
     }
     
     func fetchProfile() async throws -> Profile {
-        let token = try oAuth2TokenStorage.token
+        let token = try await oAuth2TokenStorage.token
         
         let request = API.ProfileRequest(token: token)
         

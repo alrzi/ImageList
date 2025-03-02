@@ -9,7 +9,8 @@ import Foundation
 
 @MainActor
 protocol ImageListViewModelProtocol: ObservableObject {
-    var state: State<[ImageListCellViewModel]> { get }
+    var state: ViewModelState<[ImageListCellViewModel]> { get }
+    var likeUpdateError: ErrorInfo? { get set }
     
     func onAppear()
     func onRetry()
@@ -24,7 +25,8 @@ final class ImageListViewModel: ImageListViewModelProtocol {
     private var page: Int = 1
     private var isLikeUpdateInProgress = false
     
-    @Published private(set) var state: State<[ImageListCellViewModel]> = .loading
+    @Published private(set) var state: ViewModelState<[ImageListCellViewModel]> = .loading
+    @Published var likeUpdateError: ErrorInfo?
     
     init(
         imageListProvider: ImageListProviding,
@@ -39,68 +41,69 @@ final class ImageListViewModel: ImageListViewModelProtocol {
             return
         }
         
-        updateList()
+        Task {
+            await updateList()
+        }
     }
     
     func onLikeTap(at index: Int) {
-        updateLike(for: index)
+        Task {
+            await updateLike(for: index)
+        }
     }
     
     func onImageTap(at index: Int) {
-        
+        print("onImageTap")
     }
     
     func onRetry() {
-        updateList()
+        Task {
+            await updateList()
+        }
     }
 }
 
 // MARK: - Private
 
 private extension ImageListViewModel {
-    func updateList() {
-        Task { [weak self, imageListProvider] in
-            guard let self else {
-                return
+    func updateList() async {
+        state = .loading
+        
+        do {
+            let fetchedImages = try await imageListProvider.fetchPhotosNextPage(page)
+            
+            page += 1
+            
+            let models = fetchedImages.map { photo, imageData in
+                ImageListCellViewModel(
+                    id: photo.id,
+                    isLiked: photo.isLiked,
+                    date: photo.createdAt,
+                    imageSize: photo.size,
+                    image: imageData
+                )
             }
             
-            do {
-                let fetchedImages = try await imageListProvider.fetchPhotosNextPage(page)
-                
-                page += 1
-                
-                let models = fetchedImages.map { photo, imageData in
-                    ImageListCellViewModel(
-                        id: photo.id,
-                        isLiked: photo.isLiked,
-                        date: photo.createdAt,
-                        imageSize: photo.size,
-                        image: imageData
-                    )
-                }
-                
-                state = .loaded(models)
-            }
-            catch {
-                state = .error
-                debugPrint(error)
-            }
+            state = .loaded(models)
+        }
+        catch {
+            state = .error
+            debugPrint(error)
         }
     }
     
-    func updateLike(for index: Int) {
-        Task { [weak self, imageListService] in
-            guard
-                let self,
-                !isLikeUpdateInProgress,
-                case .loaded(var models) = state,
-                let model = models.elementOrNil(at: index)
-            else {
-                return
-            }
-            
-            isLikeUpdateInProgress = true
-                       
+    func updateLike(for index: Int) async {
+        guard
+            !isLikeUpdateInProgress,
+            case .loaded(var models) = state,
+            let model = models.elementOrNil(at: index)
+        else {
+            return
+        }
+        
+        isLikeUpdateInProgress = true
+             
+        do {
             let isLiked = try await imageListService.changeLike(photoId: model.id, isLiked: !model.isLiked)
             
             _ = models.remove(at: index)
@@ -109,6 +112,16 @@ private extension ImageListViewModel {
             state = .loaded(models)
             
             isLikeUpdateInProgress = false
+        }
+        catch {
+            likeUpdateError = .init(
+                title: "Не удалось обновить лайк",
+                message: "Проверьте подключение к интернету",
+                cancelButtonText: "",
+                confirmationButtonText: "Ок",
+                onConfirm: { }
+            )
+            debugPrint(error)
         }
     }
 }

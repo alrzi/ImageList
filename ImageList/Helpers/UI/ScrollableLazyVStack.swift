@@ -36,5 +36,4 @@ extension ScrollableLazyVStack: View {
             .padding(.horizontal, horizontalPadding)
         }
     }
-    
 }

@@ -10,29 +10,28 @@ import Kingfisher
 import UIKit
 
 protocol DetailImageListPresenterProtocol {
-    var view: DetailImageListViewControllerProtocol? { get } 
+    var view: DetailImageListViewControllerProtocol? { get }
     
     func fetchImage(with url: URL)
+}
+
+private enum DetailImageState {
+    case loading
+    case error(URL)
+    case finished(UIImage)
 }
 
 final class DetailImageListPresenter {
     weak var view: DetailImageListViewControllerProtocol?
     
-    init(view: DetailImageListViewControllerProtocol?) {
-        self.view = view
-    }
-    
-    // ImageState
-    private enum DetailImageState {
-        case loading
-        case error(URL)
-        case finished(UIImage)
-    }
-    
     private var imageState: DetailImageState = .loading {
         didSet {
             configureImageState()
         }
+    }
+    
+    init(view: DetailImageListViewControllerProtocol) {
+        self.view = view
     }
     
     private func configureImageState() {

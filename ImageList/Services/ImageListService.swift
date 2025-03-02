@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol ImageListServiceProtocol {
+protocol ImageListServiceProtocol: Sendable {
     func fetchPhotosNextPage(_ page: Int) async throws -> [Photo]
     func changeLike(photoId: String, isLiked: Bool) async throws -> Bool
 }
@@ -28,7 +28,7 @@ struct ImageListService: ImageListServiceProtocol {
     }
     
     func fetchPhotosNextPage(_ page: Int) async throws -> [Photo] {
-        let token = try oAuth2TokenStorage.token
+        let token = try await oAuth2TokenStorage.token
         
         let request = API.PhotosNextPageRequest(
             page: page,
@@ -43,7 +43,7 @@ struct ImageListService: ImageListServiceProtocol {
     }
     
     func changeLike(photoId: String, isLiked: Bool) async throws -> Bool {
-        let token = try oAuth2TokenStorage.token
+        let token = try await oAuth2TokenStorage.token
         
         let request = API.ChangeLikeRequest(
             photoId: photoId,
