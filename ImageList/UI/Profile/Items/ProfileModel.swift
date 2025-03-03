@@ -12,17 +12,20 @@ struct ProfileModel: Equatable {
     let name: String
     let email: String
     let greeting: String
+    let totalLikes: Int
     let image: UIImage?
     
     init(
         name: String,
         email: String,
         greeting: String,
+        totalLikes: Int,
         imageData: Data? = nil
     ) {
         self.name = name
         self.email = email
         self.greeting = greeting
+        self.totalLikes = totalLikes
                 
         if let data = imageData {
             self.image = UIImage(data: data)

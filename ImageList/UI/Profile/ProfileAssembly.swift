@@ -9,6 +9,7 @@ import SwiftUI
 import Foundation
 
 final class ProfileAssembly {
+    private let favoriteImageListManager: ImageListManaging
     private let profileImageURLService: ProfileImageURLServiceProtocol
     private let profileService: ProfileServiceProtocol
     private let oAuth2TokenStorage: OAuth2TokenStorageProtocol
@@ -16,12 +17,14 @@ final class ProfileAssembly {
     private let profileImageService: ProfileImageServiceProtocol
     
     init(
+        favoriteImageListManager: ImageListManaging,
         profileImageURLService: ProfileImageURLServiceProtocol,
         profileService: ProfileServiceProtocol,
         oAuth2TokenStorage: OAuth2TokenStorageProtocol,
         webViewCleaner: WebViewCookieDataCleanerProtocol,
         profileImageService: ProfileImageServiceProtocol
     ) {
+        self.favoriteImageListManager = favoriteImageListManager
         self.profileImageURLService = profileImageURLService
         self.profileService = profileService
         self.oAuth2TokenStorage = oAuth2TokenStorage
@@ -37,6 +40,7 @@ final class ProfileAssembly {
             oAuth2TokenStorage: oAuth2TokenStorage,
             webViewCleaner: webViewCleaner,
             profileImageService: profileImageService,
+            favoriteImageListManager: favoriteImageListManager,
             eventsHandler: { context.output($0) }
         )
         

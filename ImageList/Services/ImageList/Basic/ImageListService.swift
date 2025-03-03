@@ -7,11 +7,6 @@
 
 import Foundation
 
-protocol ImageListServiceProtocol: Sendable {
-    func fetchPhotosNextPage(_ page: Int) async throws -> [Photo]
-    func changeLike(photoId: String, isLiked: Bool) async throws -> Bool
-}
-
 struct ImageListService: ImageListServiceProtocol {
     private let decoder: JSONDecoder
     private let networkService: NetworkClientProtocol
@@ -27,11 +22,11 @@ struct ImageListService: ImageListServiceProtocol {
         self.oAuth2TokenStorage = oAuth2TokenStorage
     }
     
-    func fetchPhotosNextPage(_ page: Int) async throws -> [Photo] {
+    func fetchPhotosNextPage(_ params: FetchingRequestParams) async throws -> [Photo] {
         let token = try await oAuth2TokenStorage.token
         
         let request = API.PhotosNextPageRequest(
-            page: page,
+            params: params,
             token: token
         )
         
@@ -59,7 +54,7 @@ struct ImageListService: ImageListServiceProtocol {
     }
 }
 
-private struct PhotoResult: Decodable {
+struct PhotoResult: Decodable {
     let id: String
     let createdAt: Date
     let width, height: Int
@@ -67,22 +62,22 @@ private struct PhotoResult: Decodable {
     let urls: UrlsResult
 }
 
-private struct UrlsResult: Decodable {
+struct UrlsResult: Decodable {
     let full: String
     let thumb: String
     let regular: String
     let small: String
 }
 
-private struct LikeResult: Decodable {
+struct LikeResult: Decodable {
     let photo: Photos
 }
 
-private struct Photos: Decodable {
+struct Photos: Decodable {
     let likedByUser: Bool
 }
 
-private extension PhotoResult {
+extension PhotoResult {
     func toPhoto() -> Photo {
         Photo(
             id: id,
@@ -94,7 +89,7 @@ private extension PhotoResult {
     }
 }
 
-private extension UrlsResult {
+extension UrlsResult {
     func toURL() -> Photo.Urls {
         Photo.Urls(
             full: full,

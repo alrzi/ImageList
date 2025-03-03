@@ -1,17 +1,19 @@
 //
-//  ImageListProvider.swift
+//  ImageListManager.swift
 //  ImageList
 //
 //  Created by Александр Зиновьев on 01.03.2025.
 //
 
 import Foundation
+import UIKit
 
-protocol ImageListProviding: Sendable {
-    func fetchPhotosNextPage(_ page: Int) async throws -> [(Photo, imageData: Data)]
+protocol ImageListManaging: Sendable {
+    func fetchPhotosNextPage(_ params: FetchingRequestParams) async throws -> [(Photo, imageData: Data)]
+    func changeLike(photoId: String, isLiked: Bool) async throws -> Bool
 }
 
-struct ImageListProvider: ImageListProviding {
+struct ImageListManager: ImageListManaging {
     typealias ReturnType = (Photo, imageData: Data)
     
     private let imageListService: ImageListServiceProtocol
@@ -25,8 +27,8 @@ struct ImageListProvider: ImageListProviding {
         self.profileImageService = profileImageService
     }
     
-    func fetchPhotosNextPage(_ page: Int) async throws -> [ReturnType] {
-        let fetchedPhotos = try await imageListService.fetchPhotosNextPage(page)
+    func fetchPhotosNextPage(_ params: FetchingRequestParams) async throws -> [ReturnType] {
+        let fetchedPhotos = try await imageListService.fetchPhotosNextPage(params)
         
         return try await withThrowingTaskGroup(
             of: ReturnType.self,
@@ -46,5 +48,9 @@ struct ImageListProvider: ImageListProviding {
                 partialResult.append(question)
             }
         }
+    }
+    
+    func changeLike(photoId: String, isLiked: Bool) async throws -> Bool {
+        try await imageListService.changeLike(photoId: photoId, isLiked: isLiked)
     }
 }

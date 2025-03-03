@@ -9,9 +9,13 @@ import Foundation
 
 @MainActor
 protocol ProfileViewModelProtocol: ObservableObject {
+    associatedtype ImageListModel: ImageListViewModelProtocol
+    
     var state: ViewModelState<ProfileModel> { get }
     var logOutConfirmationError: ErrorInfo? { get }
     var isLogOutConfirmationErrorPresented: Bool { get set }
+    
+    var imageListViewModel: ImageListModel { get }
        
     func onAppear()
     func onRetry()
@@ -27,10 +31,12 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     private let profileImageService: any ProfileImageServiceProtocol
     
     private let eventsHandler: (ProfileOutput) -> Void
-        
+    
     @Published private(set) var state: ViewModelState<ProfileModel> = .idle
     @Published private(set) var logOutConfirmationError: ErrorInfo?
     @Published var isLogOutConfirmationErrorPresented = false
+    
+    let imageListViewModel: ImageListViewModel
     
     init(
         profileImageURLService: some ProfileImageURLServiceProtocol,
@@ -38,6 +44,7 @@ final class ProfileViewModel: ProfileViewModelProtocol {
         oAuth2TokenStorage: some OAuth2TokenStorageProtocol,
         webViewCleaner: some WebViewCookieDataCleanerProtocol,
         profileImageService: some ProfileImageServiceProtocol,
+        favoriteImageListManager: ImageListManaging,
         eventsHandler: @escaping (ProfileOutput) -> Void
     ) {
         self.profileImageURLService = profileImageURLService
@@ -46,6 +53,12 @@ final class ProfileViewModel: ProfileViewModelProtocol {
         self.webViewCleaner = webViewCleaner
         self.profileImageService = profileImageService
         self.eventsHandler = eventsHandler
+        
+        self.imageListViewModel = ImageListViewModel(
+            imageListManager: favoriteImageListManager,
+            shouldRefreshOnAppear: true,
+            eventsHandler: { _ in }
+        )
     }
     
     func onAppear() {
@@ -89,25 +102,12 @@ private extension ProfileViewModel {
         do {
             let profile = try await profileService.fetchProfile()
             
-            state = .loaded(
-                .init(
-                    name: profile.fullName,
-                    email: profile.loginName,
-                    greeting: profile.bio
-                )
-            )
+            state = .loaded(profile.toProfileModel())
             
             let imageURL = try await profileImageURLService.fetchProfileImageUrl(username: profile.username)
             let imageData = try await profileImageService.fetchProfileImage(url: imageURL)
             
-            state = .loaded(
-                .init(
-                    name: profile.fullName,
-                    email: profile.loginName,
-                    greeting: profile.bio,
-                    imageData: imageData
-                )
-            )
+            state = .loaded(profile.toProfileModel(with: imageData))
         }
         catch {
             state = .error
@@ -130,6 +130,27 @@ private extension ErrorInfo {
             cancelButtonText: "Нет",
             confirmationButtonText: "Да",
             onConfirm: onConfirm
+        )
+    }
+}
+
+private extension Profile {
+    func toProfileModel() -> ProfileModel {
+        .init(
+            name: fullName,
+            email: loginName,
+            greeting: bio,
+            totalLikes: totalLikes
+        )
+    }
+    
+    func toProfileModel(with imageData: Data) -> ProfileModel {
+        .init(
+            name: fullName,
+            email: loginName,
+            greeting: bio,
+            totalLikes: totalLikes,
+            imageData: imageData
         )
     }
 }

@@ -27,8 +27,17 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let profileService = ProfileService(decoder: decoder, networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
         let webViewCleaner = WebViewCookieDataCleaner()
         let profileImageService = ProfileImageService(networkService: networkService)
+        
         let imageListService = ImageListService(decoder: decoder, networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
-        let imageListProvider = ImageListProvider(imageListService: imageListService, profileImageService: profileImageService)
+        let imageListManager = ImageListManager(imageListService: imageListService, profileImageService: profileImageService)
+        
+        let favoriteImageListService = FavoriteImageListService(
+            decoder: decoder,
+            networkService: networkService,
+            profileService: profileService,
+            oAuth2TokenStorage: oAuth2TokenStorage
+        )
+        let favoriteImageListManager = ImageListManager(imageListService: favoriteImageListService, profileImageService: profileImageService)
         
         // assemblies
         
@@ -36,6 +45,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let authAssembly = AuthAssembly(oAuth2TokenStorage: oAuth2TokenStorage, oAuth2Service: oAuth2Service)
         
         let profileAssembly = ProfileAssembly(
+            favoriteImageListManager: favoriteImageListManager,
             profileImageURLService: profileImageURLService,
             profileService: profileService,
             oAuth2TokenStorage: oAuth2TokenStorage,
@@ -43,11 +53,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             profileImageService: profileImageService
         )
         
-        let imageListAssembly = ImageListAssembly(
-            imageListProvider: imageListProvider,
-            imageListService: imageListService
-        )
-        
+        let imageListAssembly = ImageListAssembly(imageListManager: imageListManager)
         let detailImageAssembly = DetailImageAssembly()
         
         // coordinator

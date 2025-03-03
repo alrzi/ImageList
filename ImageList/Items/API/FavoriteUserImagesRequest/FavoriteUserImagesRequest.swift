@@ -1,14 +1,15 @@
 //
-//  PhotosNextPageRequest.swift
+//  FavoriteUserImagesRequest.swift
 //  ImageList
 //
-//  Created by Александр Зиновьев on 01.03.2025.
+//  Created by Александр Зиновьев on 03.03.2025.
 //
 
 import Foundation
 
 extension API {
-    struct PhotosNextPageRequest: RequestConvertible {
+    struct FavoriteUserImagesRequest: RequestConvertible {
+        let userName: String
         let params: FetchingRequestParams
         let token: String
         let method: HTTPMethod = .get
@@ -21,12 +22,13 @@ extension API {
             }
             
             let queryItems = [
+                URLQueryItem(name: "username", value: userName),
                 URLQueryItem(name: "page", value: String(params.page)),
                 URLQueryItem(name: "per_page", value: String(params.maxPerPage)),
                 URLQueryItem(name: "order_by", value: "latest")
             ]
             
-            components.path = "/photos"
+            components.path = "/users/\(userName)/likes"
             components.queryItems = queryItems
             
             guard let url = components.url else {

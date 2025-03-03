@@ -43,6 +43,7 @@ private struct ProfileResult: Decodable {
     let username: String
     let firstName: String
     let lastName: String
+    let totalLikes: Int
     let bio: String?
     
     func toProfile() -> Profile {
@@ -51,6 +52,7 @@ private struct ProfileResult: Decodable {
             firstName: firstName,
             lastName: lastName,
             loginName: "@" + username,
+            totalLikes: totalLikes,
             bio: bio ?? ""
         )
     }

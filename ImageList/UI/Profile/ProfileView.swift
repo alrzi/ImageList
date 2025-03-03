@@ -24,15 +24,20 @@ extension ProfileView: View {
                 AppProgressView()
                 
             case .loaded(let model):
-                VStack(alignment: .leading, spacing: 8) {
+                VStack {
                     ProfileTopView(
                         profileModel: model,
                         onLogOut: viewModel.onLogOut
                     )
+                    .padding(.horizontal, 16)
                     
-                    Spacer()
+                    Spacer(minLength: 0)
+                    
+                    ImageListView(viewModel: viewModel.imageListViewModel)
+                        .padding(.vertical, 8)
+                    
+                    Spacer(minLength: 0)
                 }
-                .padding(.horizontal, 16)
                 
             case .error:
                 ErrorView(onRetry: viewModel.onRetry)
@@ -63,55 +68,79 @@ private struct ProfileTopView: View {
     let onLogOut: () -> Void
     
     var body: some View {
-        HStack(spacing: 0) {
-            if let image = profileModel.image {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 70, height: 70)
-                    .clipShape(.circle)
-            }
-            else {
-                Image(systemName: "person")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 70, height: 70)
-                    .symbolVariant(.circle.fill)
-                    .symbolRenderingMode(.palette)
-                    .foregroundStyle(.white, .gray)
-            }
-            
-            Spacer()
-            
-            Button(action: onLogOut) {
-                Image(systemName: "rectangle.portrait.and.arrow.forward")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 20, height: 22)
-                    .foregroundStyle(.pink)
-                    .padding(.vertical, 11)
-                    .padding(.leading, 16)
-                    .padding(.trailing, 8)
-            }
-        }
-        
         VStack(alignment: .leading, spacing: 8) {
-            Text(profileModel.name)
-                .font(.system(size: 23, weight: .bold))
-                .foregroundStyle(.white)
+            HStack(spacing: 0) {
+                if let image = profileModel.image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 70, height: 70)
+                        .clipShape(.circle)
+                }
+                else {
+                    Image(systemName: "person")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 70, height: 70)
+                        .symbolVariant(.circle.fill)
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(.white, .gray)
+                }
+                
+                Spacer()
+                
+                Button(action: onLogOut) {
+                    Image(systemName: "rectangle.portrait.and.arrow.forward")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20, height: 22)
+                        .foregroundStyle(.pink)
+                        .padding(.vertical, 11)
+                        .padding(.leading, 16)
+                        .padding(.trailing, 8)
+                }
+            }
             
-            Text(profileModel.email)
-                .font(.system(size: 13, weight: .regular))
-                .foregroundStyle(.gray)
-            
-            Text(profileModel.greeting)
-                .font(.system(size: 13, weight: .regular))
-                .foregroundStyle(.white)
+            VStack(alignment: .leading, spacing: 8) {
+                Text(profileModel.name)
+                    .font(.system(size: 23, weight: .bold))
+                    .foregroundStyle(.white)
+                
+                Text(profileModel.email)
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundStyle(.gray)
+                
+                Text(profileModel.greeting)
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundStyle(.white)
+            }
+            .padding(.bottom, 12)
+                        
+            FavoriteView(likesNumber: profileModel.totalLikes.formatted())
         }
-        .padding(.bottom, 12)
+    }
+    
+    struct FavoriteView: View {
+        let likesNumber: String
+        
+        var body: some View {
+            HStack {
+                Text("Избранное")
+                    .font(.system(size: 23, weight: .bold))
+                    .foregroundStyle(.white)
+                
+                Text(likesNumber)
+                    .font(.system(size: 13))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background(.blue, in: .capsule)
+            }
+        }
     }
 }
 
+#if DEBUG
 #Preview("Error") {
     ProfileView(viewModel: ViewModel(state: .error))
 }
@@ -120,9 +149,26 @@ private struct ProfileTopView: View {
     ProfileView(viewModel: ViewModel(state: .loading))
 }
 
+#Preview("Loaded") {
+    ProfileView(
+        viewModel: ViewModel(
+            state: .loaded(
+                ProfileModel(
+                    name: "Aleks",
+                    email: "@gmail.com",
+                    greeting: "Hello",
+                    totalLikes: 20,
+                    imageData: .empty
+                )
+            )
+        )
+    )
+}
+
 private final class ViewModel: ProfileViewModelProtocol {
     let state: ViewModelState<ProfileModel>
     let logOutConfirmationError: ErrorInfo? = nil
+    let imageListViewModel = ImageListViewModel(imageListManager: DebugImageListManager()) { _ in }
     
     var isLogOutConfirmationErrorPresented = false
     
@@ -135,3 +181,4 @@ private final class ViewModel: ProfileViewModelProtocol {
     func onLogOut() { }
     func onConfirmLogOut() { }
 }
+#endif

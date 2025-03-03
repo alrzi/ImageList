@@ -25,28 +25,30 @@ extension ImageListView: View {
             case .loading, .idle:
                 AppProgressView()
                 
-            case .loaded(let models):
-                GeometryReader { proxy in
-                    ScrollableLazyVStack {
-                        ForEach(Array(models.enumerated()), id: \.1.id) { index, model in
-                            ImageListCellView(
-                                model: model,
-                                onLikeTap: { viewModel.onLikeTap(at: index) }
-                            )
-                            .frame(
-                                width: model.imageSize(for: proxy.size.width, paddingHorizontal: paddingHorizontal).width,
-                                height: model.imageSize(for: proxy.size.width, paddingHorizontal: paddingHorizontal).height
-                            )
-                            .onTapGesture { viewModel.onImageTap(at: index) }
-                            .onTapGesture(count: 2) { viewModel.onLikeTap(at: index) }
-                            .onAppear { viewModel.onImageAppear(at: index) }
-                        }
-                        
-                        if viewModel.paginationState.isLoading {
-                            ProgressView()
-                                .scaleEffect(2)
-                                .tint(.white)
-                                .padding(.vertical, 16)
+            case .loaded(let models, let paginationState, _):
+                if !models.isEmpty {
+                    GeometryReader { proxy in
+                        ScrollableLazyVStack {
+                            ForEach(Array(models.enumerated()), id: \.1.id) { index, model in
+                                ImageListCellView(
+                                    model: model,
+                                    onLikeTap: { viewModel.onLikeTap(at: index) }
+                                )
+                                .frame(
+                                    width: model.imageSize(for: proxy.size.width, paddingHorizontal: paddingHorizontal).width,
+                                    height: model.imageSize(for: proxy.size.width, paddingHorizontal: paddingHorizontal).height
+                                )
+                                .onTapGesture { viewModel.onImageTap(at: index) }
+                                .onTapGesture(count: 2) { viewModel.onLikeTap(at: index) }
+                                .onAppear { viewModel.onImageAppear(at: index) }
+                            }
+                            
+                            if paginationState.isLoading {
+                                ProgressView()
+                                    .scaleEffect(2)
+                                    .tint(.white)
+                                    .padding(.vertical, 16)
+                            }
                         }
                     }
                     .refreshable {
@@ -56,6 +58,11 @@ extension ImageListView: View {
                     .onAppear {
                         UIRefreshControl.appearance().tintColor = UIColor.white
                     }
+                }
+                else {
+                    Text("Пока пусто")
+                        .font(.system(size: 23, weight: .bold))
+                        .foregroundStyle(.white)
                 }
                 
             case .error:
@@ -76,9 +83,22 @@ extension ImageListView: View {
             }
         )
         .alert(
+            "Не удалось обновить список",
+            isPresented: $viewModel.isRefreshAlertPresented,
+            presenting: viewModel.state.refreshState?.error,
+            actions: { error in
+                Button(action: { }) {
+                    Text(error.confirmationButtonText)
+                }
+            },
+            message: { error in
+                Text(error.message)
+            }
+        )
+        .alert(
             "Не удалось подгрузить еще картинок",
             isPresented: $viewModel.isPaginationAlertPresented,
-            presenting: viewModel.paginationState.error,
+            presenting: viewModel.state.paginationState?.error,
             actions: { error in
                 Button(action: { }) {
                     Text(error.confirmationButtonText)
@@ -93,30 +113,8 @@ extension ImageListView: View {
     }
 }
 
-#Preview("Loading") {
-    ImageListView(viewModel: ViewModel(state: .loading))
+#if DEBUG
+#Preview {
+    ImageListView(viewModel: ImageListViewModel(imageListManager: DebugImageListManager()) { _ in })
 }
-
-#Preview("Error") {
-    ImageListView(viewModel: ViewModel(state: .error))
-}
-
-private final class ViewModel: ImageListViewModelProtocol {
-    let state: ViewModelState<[ImageListCellViewModel]>
-    let paginationState: LoadingState = .idle
-    let likeUpdateState: LoadingState = .idle
-    
-    var isPaginationAlertPresented = false
-    var isLikeUpdateAlertPresented = false
-    
-    init(state: ViewModelState<[ImageListCellViewModel]>) {
-        self.state = state
-    }
-    
-    func onAppear() { }
-    func onRetry() { }
-    func onRefresh() { }
-    func onLikeTap(at index: Int) { }
-    func onImageTap(at index: Int) { }
-    func onImageAppear(at index: Int) { }
-}
+#endif

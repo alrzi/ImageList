@@ -9,22 +9,16 @@ import SwiftUI
 import Foundation
 
 final class ImageListAssembly {
-    private let imageListProvider: ImageListProviding
-    private let imageListService: ImageListServiceProtocol
+    private let imageListManager: ImageListManaging
     
-    init(
-        imageListProvider: ImageListProviding,
-        imageListService: ImageListServiceProtocol
-    ) {
-        self.imageListProvider = imageListProvider
-        self.imageListService = imageListService
+    init(imageListManager: ImageListManaging) {
+        self.imageListManager = imageListManager
     }
     
     @MainActor
     func assemble(_ context: ViewContext<(), ImageListOutput>) -> UIViewController {
         let viewModel = ImageListViewModel(
-            imageListProvider: imageListProvider,
-            imageListService: imageListService,
+            imageListManager: imageListManager,
             eventsHandler: { context.output($0) }
         )
         

@@ -10,6 +10,7 @@ struct Profile {
     let firstName: String
     let lastName: String
     let loginName: String
+    let totalLikes: Int
     let bio: String
     
     var fullName: String { "\(firstName) \(lastName)" }
