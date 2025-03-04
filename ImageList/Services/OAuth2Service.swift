@@ -12,15 +12,10 @@ protocol OAuth2ServiceProtocol: Sendable {
 }
 
 struct OAuth2Service: OAuth2ServiceProtocol {
-    private let decoder: JSONDecoder
     private let networkService: NetworkClientProtocol
         
-    init(
-        networkService: NetworkClientProtocol,
-        decoder: JSONDecoder
-    ) {
+    init(networkService: NetworkClientProtocol) {
         self.networkService = networkService
-        self.decoder = decoder
     }
     
     func fetchOAuthToken(withCode code: String) async throws -> String {

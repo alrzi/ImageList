@@ -28,7 +28,7 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     private let profileService: any ProfileServiceProtocol
     private let oAuth2TokenStorage: any OAuth2TokenStorageProtocol
     private let webViewCleaner: any WebViewCookieDataCleanerProtocol
-    private let profileImageService: any ProfileImageServiceProtocol
+    private let imageService: any ImageServiceProtocol
     
     private let eventsHandler: (ProfileOutput) -> Void
     
@@ -43,7 +43,7 @@ final class ProfileViewModel: ProfileViewModelProtocol {
         profileService: some ProfileServiceProtocol,
         oAuth2TokenStorage: some OAuth2TokenStorageProtocol,
         webViewCleaner: some WebViewCookieDataCleanerProtocol,
-        profileImageService: some ProfileImageServiceProtocol,
+        imageService: some ImageServiceProtocol,
         favoriteImageListManager: ImageListManaging,
         eventsHandler: @escaping (ProfileOutput) -> Void
     ) {
@@ -51,7 +51,7 @@ final class ProfileViewModel: ProfileViewModelProtocol {
         self.profileService = profileService
         self.oAuth2TokenStorage = oAuth2TokenStorage
         self.webViewCleaner = webViewCleaner
-        self.profileImageService = profileImageService
+        self.imageService = imageService
         self.eventsHandler = eventsHandler
         
         self.imageListViewModel = ImageListViewModel(
@@ -105,7 +105,7 @@ private extension ProfileViewModel {
             state = .loaded(profile.toProfileModel())
             
             let imageURL = try await profileImageURLService.fetchProfileImageUrl(username: profile.username)
-            let imageData = try await profileImageService.fetchProfileImage(url: imageURL)
+            let imageData = try await imageService.fetchProfileImage(url: imageURL)
             
             state = .loaded(profile.toProfileModel(with: imageData))
         }

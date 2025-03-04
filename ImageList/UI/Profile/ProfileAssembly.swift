@@ -14,7 +14,7 @@ final class ProfileAssembly {
     private let profileService: ProfileServiceProtocol
     private let oAuth2TokenStorage: OAuth2TokenStorageProtocol
     private let webViewCleaner: WebViewCookieDataCleanerProtocol
-    private let profileImageService: ProfileImageServiceProtocol
+    private let imageService: ImageServiceProtocol
     
     init(
         favoriteImageListManager: ImageListManaging,
@@ -22,14 +22,14 @@ final class ProfileAssembly {
         profileService: ProfileServiceProtocol,
         oAuth2TokenStorage: OAuth2TokenStorageProtocol,
         webViewCleaner: WebViewCookieDataCleanerProtocol,
-        profileImageService: ProfileImageServiceProtocol
+        imageService: ImageServiceProtocol
     ) {
         self.favoriteImageListManager = favoriteImageListManager
         self.profileImageURLService = profileImageURLService
         self.profileService = profileService
         self.oAuth2TokenStorage = oAuth2TokenStorage
         self.webViewCleaner = webViewCleaner
-        self.profileImageService = profileImageService
+        self.imageService = imageService
     }
     
     @MainActor
@@ -39,7 +39,7 @@ final class ProfileAssembly {
             profileService: profileService,
             oAuth2TokenStorage: oAuth2TokenStorage,
             webViewCleaner: webViewCleaner,
-            profileImageService: profileImageService,
+            imageService: imageService,
             favoriteImageListManager: favoriteImageListManager,
             eventsHandler: { context.output($0) }
         )

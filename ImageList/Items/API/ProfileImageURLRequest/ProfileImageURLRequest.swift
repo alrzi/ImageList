@@ -16,7 +16,7 @@ extension API {
         let method: HTTPMethod = .get
         let decoder: JSONDecoder = .sharedDecoder
         let timeoutInterval: TimeInterval = 30
-        let authConfiguration: UnsplashAuthConfiguration
+        let authConfiguration: UnsplashAuthConfiguration = .standard
         
         func asURLRequest() throws(RequestConvertibleError) -> URLRequest {
             guard var components = URLComponents(string: authConfiguration.defaultBaseHost) else {

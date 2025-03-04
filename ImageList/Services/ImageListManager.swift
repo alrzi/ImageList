@@ -16,29 +16,32 @@ protocol ImageListManaging: Sendable {
 struct ImageListManager: ImageListManaging {
     typealias ReturnType = (Photo, imageData: Data)
     
-    private let imageListService: ImageListServiceProtocol
-    private let profileImageService: ProfileImageServiceProtocol
+    private let photosListService: PhotosListServiceProtocol
+    private let imageService: ImageServiceProtocol
+    private let likeService: LikeServiceProtocol
     
     init(
-        imageListService: ImageListServiceProtocol,
-        profileImageService: ProfileImageServiceProtocol
+        photosListService: PhotosListServiceProtocol,
+        imageService: ImageServiceProtocol,
+        likeService: LikeServiceProtocol
     ) {
-        self.imageListService = imageListService
-        self.profileImageService = profileImageService
+        self.photosListService = photosListService
+        self.imageService = imageService
+        self.likeService = likeService
     }
     
     func fetchPhotosNextPage(_ params: FetchingRequestParams) async throws -> [ReturnType] {
-        let fetchedPhotos = try await imageListService.fetchPhotosNextPage(params)
+        let fetchedPhotos = try await photosListService.fetchPhotosNextPage(params)
         
         return try await withThrowingTaskGroup(
             of: ReturnType.self,
             returning: [ReturnType].self
-        ) { [profileImageService] taskGroup in
+        ) { [imageService] taskGroup in
             for photo in fetchedPhotos {
-                taskGroup.addTask { [profileImageService] in
+                taskGroup.addTask { [imageService] in
                     let url = try photo.imageURL
                     
-                    let imageData = try await profileImageService.fetchProfileImage(url: url)
+                    let imageData = try await imageService.fetchProfileImage(url: url)
                     
                     return (photo, imageData: imageData)
                 }
@@ -51,6 +54,6 @@ struct ImageListManager: ImageListManaging {
     }
     
     func changeLike(photoId: String, isLiked: Bool) async throws -> Bool {
-        try await imageListService.changeLike(photoId: photoId, isLiked: isLiked)
+        try await likeService.changeLike(photoId: photoId, isLiked: isLiked)
     }
 }

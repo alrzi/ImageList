@@ -1,5 +1,5 @@
 //
-//  ProfileImageService.swift
+//  ImageService.swift
 //  ImageList
 //
 //  Created by Александр Зиновьев on 23.02.2025.
@@ -7,11 +7,11 @@
 
 import Foundation
 
-protocol ProfileImageServiceProtocol: Sendable {
+protocol ImageServiceProtocol: Sendable {
     func fetchProfileImage(url: URL) async throws -> Data
 }
 
-struct ProfileImageService: ProfileImageServiceProtocol {
+struct ImageService: ImageServiceProtocol {
     private let networkService: NetworkClientProtocol
       
     init(networkService: NetworkClientProtocol) {

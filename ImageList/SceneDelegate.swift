@@ -16,28 +16,21 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
         
         // servises
-        
-        let decoder: JSONDecoder = .sharedDecoder
+               
         let session = URLSession.shared
         let keychain = KeychainService()
         let networkService = NetworkClient(session: session)
-        let oAuth2Service = OAuth2Service(networkService: networkService, decoder: decoder)
+        let oAuth2Service = OAuth2Service(networkService: networkService)
         let oAuth2TokenStorage = OAuth2TokenStorage(keychain: keychain)
-        let profileImageURLService = ProfileImageURLService(decoder: decoder, networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
-        let profileService = ProfileService(decoder: decoder, networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
+        let profileImageURLService = ProfileImageURLService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
+        let profileService = ProfileService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
         let webViewCleaner = WebViewCookieDataCleaner()
-        let profileImageService = ProfileImageService(networkService: networkService)
-        
-        let imageListService = ImageListService(decoder: decoder, networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
-        let imageListManager = ImageListManager(imageListService: imageListService, profileImageService: profileImageService)
-        
-        let favoriteImageListService = FavoriteImageListService(
-            decoder: decoder,
-            networkService: networkService,
-            profileService: profileService,
-            oAuth2TokenStorage: oAuth2TokenStorage
-        )
-        let favoriteImageListManager = ImageListManager(imageListService: favoriteImageListService, profileImageService: profileImageService)
+        let imageService = ImageService(networkService: networkService)
+        let likeService = LikeService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
+        let photosListService = PhotosListService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
+        let imageListManager = ImageListManager(photosListService: photosListService, imageService: imageService, likeService: likeService)
+        let favoritePhotosService = FavoritePhotosListService(networkService: networkService, profileService: profileService, oAuth2TokenStorage: oAuth2TokenStorage)
+        let favoriteImageListManager = ImageListManager(photosListService: favoritePhotosService, imageService: imageService, likeService: likeService)
         
         // assemblies
         
@@ -50,7 +43,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             profileService: profileService,
             oAuth2TokenStorage: oAuth2TokenStorage,
             webViewCleaner: webViewCleaner,
-            profileImageService: profileImageService
+            imageService: imageService
         )
         
         let imageListAssembly = ImageListAssembly(imageListManager: imageListManager)

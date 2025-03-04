@@ -12,16 +12,13 @@ protocol ProfileImageURLServiceProtocol: Sendable {
 }
 
 struct ProfileImageURLService: ProfileImageURLServiceProtocol {
-    private let decoder: JSONDecoder
     private let networkService: NetworkClientProtocol
     private let oAuth2TokenStorage: OAuth2TokenStorage
     
     init(
-        decoder: JSONDecoder,
         networkService: NetworkClientProtocol,
         oAuth2TokenStorage: OAuth2TokenStorage
     ) {
-        self.decoder = decoder
         self.networkService = networkService
         self.oAuth2TokenStorage = oAuth2TokenStorage
     }
@@ -31,8 +28,7 @@ struct ProfileImageURLService: ProfileImageURLServiceProtocol {
                 
         let request = API.ProfileImageURLRequest(
             token: token,
-            username: username,
-            authConfiguration: .standard
+            username: username
         )
                 
         let response = try await networkService.fetchData(for: request)
