@@ -8,10 +8,13 @@
 import Foundation
 
 extension API {
-    struct ChangeLikeRequest: RequestConvertible {
+    struct ChangeLikeRequest: CommonRequestProtocol {
+        typealias Response = LikeResult
+                        
         let photoId: String
         let token: String
         let method: HTTPMethod
+        let decoder: JSONDecoder = .sharedDecoder
         let timeoutInterval: TimeInterval = 30
         let authConfiguration: UnsplashAuthConfiguration = .standard
         
@@ -32,5 +35,13 @@ extension API {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
             return request
         }
+    }
+    
+    struct LikeResult: Decodable {
+        let photo: Photos
+    }
+
+    struct Photos: Decodable {
+        let likedByUser: Bool
     }
 }

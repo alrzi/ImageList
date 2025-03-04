@@ -15,7 +15,7 @@ public enum NetworkClientError: Error {
 }
 
 public protocol NetworkClientProtocol: Sendable {
-    func fetchData(for requestConvertible: RequestConvertible) async throws(NetworkClientError) -> Data
+    func fetchData<Request: RequestProtocol>(for request: Request) async throws(NetworkClientError) -> Request.Response
 }
 
 public struct NetworkClient: NetworkClientProtocol {
@@ -25,11 +25,9 @@ public struct NetworkClient: NetworkClientProtocol {
         self.session = session
     }
     
-    public func fetchData(for requestConvertible: RequestConvertible) async throws(NetworkClientError) -> Data {
+    public func fetchData<Request: RequestProtocol>(for request: Request) async throws(NetworkClientError) -> Request.Response {
         do {
-            let request = try requestConvertible.asURLRequest()
-            
-            let (data, response) = try await session.data(for: request)
+            let (data, response) = try await session.data(for: try request.asURLRequest())
             
             guard let statusCode = (response as? HTTPURLResponse)?.statusCode else {
                 throw NetworkClientError.invalidStatusCode(statusCode: -1)
@@ -39,7 +37,7 @@ public struct NetworkClient: NetworkClientProtocol {
                 throw NetworkClientError.invalidStatusCode(statusCode: statusCode)
             }
             
-            return data
+            return try request.response(from: data)
         }
         catch let error as URLError {
             throw .requestFailed(innerError: error)

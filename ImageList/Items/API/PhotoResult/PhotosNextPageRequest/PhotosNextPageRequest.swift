@@ -7,11 +7,14 @@
 
 import Foundation
 
-extension API {
-    struct PhotosNextPageRequest: RequestConvertible {
+extension API.PhotoResult {
+    struct PhotosNextPageRequest: CommonRequestProtocol {
+        typealias Response = [PhotoResult]
+                        
         let params: FetchingRequestParams
         let token: String
         let method: HTTPMethod = .get
+        let decoder: JSONDecoder = .sharedDecoder
         let timeoutInterval: TimeInterval = 30
         let authConfiguration: UnsplashAuthConfiguration = .standard
         

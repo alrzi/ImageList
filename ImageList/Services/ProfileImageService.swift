@@ -19,10 +19,6 @@ struct ProfileImageService: ProfileImageServiceProtocol {
     }
     
     func fetchProfileImage(url: URL) async throws -> Data {
-        let request = URLRequest(url: url)
-        
-        let data = try await networkService.fetchData(for: request)
-                
-        return data
+        try await networkService.fetchData(for: URLRequest(url: url))
     }
 }

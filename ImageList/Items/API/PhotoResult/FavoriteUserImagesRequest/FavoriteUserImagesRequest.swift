@@ -7,11 +7,14 @@
 
 import Foundation
 
-extension API {
-    struct FavoriteUserImagesRequest: RequestConvertible {
+extension API.PhotoResult {
+    struct FavoriteUserImagesRequest: CommonRequestProtocol {
+        typealias Response = [PhotoResult]
+        
         let userName: String
         let params: FetchingRequestParams
         let token: String
+        let decoder: JSONDecoder = .sharedDecoder
         let method: HTTPMethod = .get
         let timeoutInterval: TimeInterval = 30
         let authConfiguration: UnsplashAuthConfiguration = .standard

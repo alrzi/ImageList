@@ -26,19 +26,8 @@ struct OAuth2Service: OAuth2ServiceProtocol {
     func fetchOAuthToken(withCode code: String) async throws -> String {
         let request = API.OAuth2TokenRequest(code: code)
                 
-        let data = try await networkService.fetchData(for: request)
+        let response = try await networkService.fetchData(for: request)
         
-        let result = try decoder.decode(OAuthTokenResponseBody.self, from: data)
-        
-        return result.accessToken
-    }
-}
-
-private extension OAuth2Service {
-    struct OAuthTokenResponseBody: Decodable {
-        let accessToken: String
-        let tokenType: String
-        let scope: String
-        let createdAt: Int
+        return response.accessToken
     }
 }

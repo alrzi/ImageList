@@ -8,8 +8,11 @@
 import Foundation
 
 extension API {
-    struct OAuth2TokenRequest: RequestConvertible {
+    struct OAuth2TokenRequest: CommonRequestProtocol {
+        typealias Response = OAuthTokenResponseBody
+                        
         let code: String
+        let decoder: JSONDecoder = .sharedDecoder
         let method: HTTPMethod = .post
         let timeoutInterval: TimeInterval = 30
         let authConfiguration: UnsplashAuthConfiguration = .standard
@@ -40,5 +43,12 @@ extension API {
             
             return request
         }
+    }
+    
+    struct OAuthTokenResponseBody: Decodable {
+        let accessToken: String
+        let tokenType: String
+        let scope: String
+        let createdAt: Int
     }
 }

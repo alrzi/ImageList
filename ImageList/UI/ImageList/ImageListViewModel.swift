@@ -18,7 +18,7 @@ protocol ImageListViewModelProtocol: ObservableObject {
     
     func onAppear()
     func onRetry()
-    func onRefresh() async
+    func onRefresh()
     func onLikeTap(at index: Int)
     func onImageTap(at index: Int)
     func onImageAppear(at index: Int)
@@ -64,7 +64,7 @@ final class ImageListViewModel: ImageListViewModelProtocol {
     
     func onAppear() {
         Task {
-            guard !state.isLoaded && shouldRefreshOnAppear else {
+            guard !state.isLoaded || shouldRefreshOnAppear else {
                 return
             }
             
@@ -72,8 +72,10 @@ final class ImageListViewModel: ImageListViewModelProtocol {
         }
     }
     
-    func onRefresh() async {
-        await refreshList()
+    func onRefresh() {
+        Task {
+            await refreshList()
+        }
     }
     
     func onRetry() {

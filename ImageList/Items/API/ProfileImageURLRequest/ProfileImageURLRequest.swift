@@ -8,10 +8,13 @@
 import Foundation
 
 extension API {
-    struct ProfileImageURLRequest: RequestConvertible, Sendable {
+    struct ProfileImageURLRequest: CommonRequestProtocol {
+        typealias Response = UserResult
+                        
         let token: String
         let username: String
         let method: HTTPMethod = .get
+        let decoder: JSONDecoder = .sharedDecoder
         let timeoutInterval: TimeInterval = 30
         let authConfiguration: UnsplashAuthConfiguration
         
@@ -32,5 +35,15 @@ extension API {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
             return request
         }
+    }
+    
+    struct UserResult: Decodable {
+        let profileImage: ProfileImage
+    }
+    
+    struct ProfileImage: Decodable {
+        let small: String
+        let medium: String
+        let large: String
     }
 }

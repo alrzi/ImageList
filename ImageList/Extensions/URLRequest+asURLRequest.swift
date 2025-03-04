@@ -7,7 +7,13 @@
 
 import Foundation
 
-extension URLRequest: RequestConvertible {
+extension URLRequest: RequestProtocol {
+    public var method: HTTPMethod { .get }
+    
+    public func response(from data: Data) throws -> Data {
+        data
+    }
+        
     public func asURLRequest() throws(RequestConvertibleError) -> URLRequest {
         self
     }

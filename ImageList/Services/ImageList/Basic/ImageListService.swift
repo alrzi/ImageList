@@ -25,16 +25,14 @@ struct ImageListService: ImageListServiceProtocol {
     func fetchPhotosNextPage(_ params: FetchingRequestParams) async throws -> [Photo] {
         let token = try await oAuth2TokenStorage.token
         
-        let request = API.PhotosNextPageRequest(
+        let request = API.PhotoResult.PhotosNextPageRequest(
             params: params,
             token: token
         )
         
-        let data = try await networkService.fetchData(for: request)
+        let response = try await networkService.fetchData(for: request)
         
-        let result = try decoder.decode([PhotoResult].self, from: data)
-        
-        return result.map { $0.toPhoto() }
+        return response.map { $0.toPhoto() }
     }
     
     func changeLike(photoId: String, isLiked: Bool) async throws -> Bool {
@@ -46,56 +44,8 @@ struct ImageListService: ImageListServiceProtocol {
             method: isLiked ? .post : .delete
         )
         
-        let data = try await networkService.fetchData(for: request)
+        let response = try await networkService.fetchData(for: request)
         
-        let result = try decoder.decode(LikeResult.self, from: data)
-        
-        return result.photo.likedByUser
-    }
-}
-
-struct PhotoResult: Decodable {
-    let id: String
-    let createdAt: Date
-    let width, height: Int
-    let likedByUser: Bool
-    let urls: UrlsResult
-}
-
-struct UrlsResult: Decodable {
-    let full: String
-    let thumb: String
-    let regular: String
-    let small: String
-}
-
-struct LikeResult: Decodable {
-    let photo: Photos
-}
-
-struct Photos: Decodable {
-    let likedByUser: Bool
-}
-
-extension PhotoResult {
-    func toPhoto() -> Photo {
-        Photo(
-            id: id,
-            size: CGSize(width: width, height: height),
-            createdAt: createdAt,
-            urls: urls.toURL(),
-            isLiked: likedByUser
-        )
-    }
-}
-
-extension UrlsResult {
-    func toURL() -> Photo.Urls {
-        Photo.Urls(
-            full: full,
-            thumb: thumb,
-            regular: regular,
-            small: small
-        )
+        return response.photo.likedByUser
     }
 }

@@ -23,7 +23,7 @@ final class AuthViewModel: AuthViewModelProtocol {
     
     private let next: (AuthViewOutput) -> Void
     
-    @Published private(set) var state: ViewModelState<()> = .idle
+    @Published private(set) var state: ViewModelState<()> = .loaded(())
         
     init(
         oAuth2TokenStorage: some OAuth2TokenStorageProtocol,
@@ -70,10 +70,6 @@ private extension AuthViewModel {
        
         do {
             let token = try await oAuth2Service.fetchOAuthToken(withCode: code)
-            
-//            Task.detached(priority: .background) { [oAuth2TokenStorage] in
-//
-//            }
             
             await oAuth2TokenStorage.setToken(token)
             

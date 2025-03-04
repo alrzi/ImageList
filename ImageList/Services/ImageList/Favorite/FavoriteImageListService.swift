@@ -30,17 +30,15 @@ struct FavoriteImageListService: ImageListServiceProtocol {
         
         let username = try await profileService.fetchProfile().username
         
-        let request = API.FavoriteUserImagesRequest(
+        let request = API.PhotoResult.FavoriteUserImagesRequest(
             userName: username,
             params: params,
             token: token
         )
         
-        let data = try await networkService.fetchData(for: request)
+        let response = try await networkService.fetchData(for: request)
         
-        let result = try decoder.decode([PhotoResult].self, from: data)
-        
-        return result.map { $0.toPhoto() }
+        return response.map { $0.toPhoto() }
     }
     
     func changeLike(photoId: String, isLiked: Bool) async throws -> Bool {
@@ -52,10 +50,8 @@ struct FavoriteImageListService: ImageListServiceProtocol {
             method: isLiked ? .post : .delete
         )
         
-        let data = try await networkService.fetchData(for: request)
+        let response = try await networkService.fetchData(for: request)
         
-        let result = try decoder.decode(LikeResult.self, from: data)
-        
-        return result.photo.likedByUser
+        return response.photo.likedByUser
     }
 }

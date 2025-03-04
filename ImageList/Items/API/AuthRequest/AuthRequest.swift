@@ -8,7 +8,9 @@
 import Foundation
 
 extension API {
-    struct AuthRequest: RequestConvertible {
+    struct AuthRequest: RequestProtocol {
+        typealias Response = ()
+        
         let method: HTTPMethod = .get
         let timeoutInterval: TimeInterval = 30
         let authConfiguration: UnsplashAuthConfiguration

@@ -52,7 +52,7 @@ extension ImageListView: View {
                         }
                     }
                     .refreshable {
-                        await viewModel.onRefresh()
+                        viewModel.onRefresh()
                     }
                     .padding(.horizontal, paddingHorizontal)
                     .onAppear {

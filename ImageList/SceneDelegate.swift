@@ -182,13 +182,13 @@ private extension LoginCoordinator {
     func showHome() {
         let imagesListViewController = imageListAssembly.assemble(.init { handle(output: $0) })
         let profileViewController = profileAssembly.assemble(.init { handle(output: $0) })
+        navigationController.setViewControllers([imagesListViewController], animated: false)
         
         let viewController = TabBarController(
             imagesListNavigationController: navigationController,
             profileViewController: profileViewController
         )
-        
-        navigationController.setViewControllers([imagesListViewController], animated: false)
+                
         window.rootViewController = viewController
     }
     

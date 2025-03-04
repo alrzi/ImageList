@@ -35,27 +35,13 @@ struct ProfileImageURLService: ProfileImageURLServiceProtocol {
             authConfiguration: .standard
         )
                 
-        let data = try await networkService.fetchData(for: request)
+        let response = try await networkService.fetchData(for: request)
         
-        let result = try decoder.decode(UserResult.self, from: data)
-        
-        guard let url = URL(string: result.profileImage.large) else {
+        guard let url = URL(string: response.profileImage.large) else {
             throw Errors.urlCreationFailed
         }
         
         return url
-    }
-}
-
-private extension ProfileImageURLService {
-    struct UserResult: Decodable {
-        let profileImage: ProfileImage
-    }
-    
-    struct ProfileImage: Decodable {
-        let small: String
-        let medium: String
-        let large: String
     }
 }
 

@@ -31,21 +31,13 @@ struct ProfileService: ProfileServiceProtocol {
         
         let request = API.ProfileRequest(token: token)
         
-        let data = try await networkService.fetchData(for: request)
+        let response = try await networkService.fetchData(for: request)
         
-        let result = try decoder.decode(ProfileResult.self, from: data)
-        
-        return result.toProfile()
+        return response.toProfile()
     }
 }
 
-private struct ProfileResult: Decodable {
-    let username: String
-    let firstName: String
-    let lastName: String
-    let totalLikes: Int
-    let bio: String?
-    
+private extension API.ProfileResult {
     func toProfile() -> Profile {
         Profile(
             username: username,
