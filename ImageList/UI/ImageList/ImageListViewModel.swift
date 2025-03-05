@@ -71,7 +71,7 @@ final class ImageListViewModel: ImageListViewModelProtocol {
     
     func onAppear() {
         Task {
-            guard !state.isLoaded || imageListType.shouldRefreshOnApperIfAlreadyLoaded else {
+            guard !state.isLoaded || imageListType.shouldRefreshOnAppearIfAlreadyLoaded else {
                 return
             }
             
@@ -277,7 +277,7 @@ private extension ErrorInfo {
 }
 
 private extension ImageListType {
-    var shouldRefreshOnApperIfAlreadyLoaded: Bool {
+    var shouldRefreshOnAppearIfAlreadyLoaded: Bool {
         switch self {
         case .all: false
         case .onlyFavorite: true

@@ -40,8 +40,8 @@ extension ImageListView: View {
                                     onLikeTap: { viewModel.onLikeTap(at: index) }
                                 )
                                 .frame(
-                                    width: model.imageSize(for: proxy.size.width, paddingHorizontal: paddingHorizontal).width,
-                                    height: model.imageSize(for: proxy.size.width, paddingHorizontal: paddingHorizontal).height
+                                    width: model.imageSize(for: proxy.width, paddingHorizontal: paddingHorizontal).width,
+                                    height: model.imageSize(for: proxy.width, paddingHorizontal: paddingHorizontal).height
                                 )
                                 .onTapGesture { viewModel.onImageTap(at: index) }
                                 .onTapGesture(count: 2) { viewModel.onLikeTap(at: index) }

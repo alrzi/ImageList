@@ -1,5 +1,5 @@
 //
-//  Array+Extensions.swift
+//  Array+elementOrNil.swift
 //  ImageList
 //
 //  Created by Александр Зиновьев on 14.02.2023.

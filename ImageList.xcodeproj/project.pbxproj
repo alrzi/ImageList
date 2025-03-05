@@ -45,7 +45,6 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		F9DF9ECC2D6658E600935115 /* ImageList */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F9DF9F002D6658E600935115 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ImageList; sourceTree = "<group>"; };
-		F9DF9F062D6658EB00935115 /* ImageListTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ImageListTests; sourceTree = "<group>"; };
 		F9DF9F0E2D6658EE00935115 /* ImageListUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ImageListUITests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -79,7 +78,6 @@
 			isa = PBXGroup;
 			children = (
 				F9DF9ECC2D6658E600935115 /* ImageList */,
-				F9DF9F062D6658EB00935115 /* ImageListTests */,
 				F9DF9F0E2D6658EE00935115 /* ImageListUITests */,
 				F9843EEC295847EA00EB2CF4 /* Products */,
 			);
@@ -155,9 +153,6 @@
 			);
 			dependencies = (
 				F9A2913829B74A1C00CE9BE4 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				F9DF9F062D6658EB00935115 /* ImageListTests */,
 			);
 			name = ImageListTests;
 			productName = ImageListTests;
