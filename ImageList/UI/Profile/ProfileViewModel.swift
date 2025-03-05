@@ -73,19 +73,15 @@ final class ProfileViewModel: ProfileViewModelProtocol {
             imageListType: .onlyFavorite,
             eventsHandler: { [weak self] in self?.handle(output: $0) }
         )
+               
+        Task {
+            await updateProfile()
+        }
     }
     
     func onAppear() {
         Task {
             await updateLikesCount()
-        }
-        
-        guard !state.isLoaded else {
-            return
-        }
-        
-        Task {
-            await updateProfile()
         }
     }
     
@@ -121,10 +117,7 @@ private extension ProfileViewModel {
             
             state = .loaded(profile.toProfileModel())
             
-            let imageURL = try await profileImageURLService.fetchProfileImageUrl(username: profile.username)
-            let imageData = try await imageService.fetchProfileImage(url: imageURL)
-            
-            state = .loaded(profile.toProfileModel(with: imageData))
+            await updateImage(for: profile)
         }
         catch {
             state = .error
@@ -157,6 +150,18 @@ private extension ProfileViewModel {
         eventsHandler(.onLogOut)
     }
     
+    func updateImage(for profile: Profile) async {
+        do {
+            let imageURL = try await profileImageURLService.fetchProfileImageUrl(username: profile.username)
+            let imageData = try await imageService.fetchProfileImage(url: imageURL)
+            
+            state = .loaded(profile.toProfileModel(with: imageData))
+        }
+        catch {
+            debugPrint(error)
+        }
+    }
+    
     func handle(output: ImageListOutput) {
         switch output {
         case .onImageTap(let uRL):
@@ -166,7 +171,7 @@ private extension ProfileViewModel {
             guard case .loaded(let info) = state else {
                 return
             }
-            print("onLikeRemoved")
+            
             state = .loaded(info.withLikesCountDecreasedAtOne())
         }
     }
