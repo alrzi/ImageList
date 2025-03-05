@@ -13,9 +13,12 @@ protocol ProfileViewModelProtocol: ObservableObject {
     
     var state: ViewModelState<ProfileModel> { get }
     var logOutConfirmationError: ErrorInfo? { get }
-    var isLogOutConfirmationErrorPresented: Bool { get set }
+    var accountAccuracyError: ErrorInfo? { get }
     
-    var imageListViewModel: ImageListModel { get }
+    var isLogOutConfirmationErrorPresented: Bool { get set }
+    var isAccountAccuracyErrorPresented: Bool { get set }
+    
+    var imageListViewModel: ImageListModel? { get }
        
     func onAppear()
     func onRetry()
@@ -34,9 +37,12 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     
     @Published private(set) var state: ViewModelState<ProfileModel> = .idle
     @Published private(set) var logOutConfirmationError: ErrorInfo?
-    @Published var isLogOutConfirmationErrorPresented = false
+    @Published private(set) var accountAccuracyError: ErrorInfo?
     
-    let imageListViewModel: ImageListViewModel
+    @Published var isLogOutConfirmationErrorPresented = false
+    @Published var isAccountAccuracyErrorPresented = false
+    
+    private(set) var imageListViewModel: ImageListViewModel?
     
     init(
         profileImageURLService: some ProfileImageURLServiceProtocol,
@@ -54,14 +60,26 @@ final class ProfileViewModel: ProfileViewModelProtocol {
         self.imageService = imageService
         self.eventsHandler = eventsHandler
         
-        self.imageListViewModel = ImageListViewModel(
+        $logOutConfirmationError
+            .map { $0 != nil }
+            .assign(to: &$isLogOutConfirmationErrorPresented)
+        
+        $accountAccuracyError
+            .map { $0 != nil }
+            .assign(to: &$isAccountAccuracyErrorPresented)
+        
+        imageListViewModel = ImageListViewModel(
             imageListManager: favoriteImageListManager,
-            shouldRefreshOnAppear: true,
-            eventsHandler: { _ in }
+            imageListType: .onlyFavorite,
+            eventsHandler: { [weak self] in self?.handle(output: $0) }
         )
     }
     
     func onAppear() {
+        Task {
+            await updateLikesCount()
+        }
+        
         guard !state.isLoaded else {
             return
         }
@@ -79,7 +97,6 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     
     func onLogOut() {
         logOutConfirmationError = .profileLogOutConfirmationError { [weak self] in self?.onConfirmLogOut() }
-        isLogOutConfirmationErrorPresented = true
     }
     
     func onConfirmLogOut() {
@@ -115,15 +132,56 @@ private extension ProfileViewModel {
         }
     }
     
+    func updateLikesCount() async {
+        guard case .loaded(let model) = state else {
+            return
+        }
+        
+        do {
+            let profile = try await profileService.fetchProfile()
+            
+            if profile.totalLikes != model.totalLikes {
+                state = .loaded(model.with(likesCount: profile.totalLikes))
+            }
+        }
+        catch {
+            accountAccuracyError = .accountAccuracyError
+            debugPrint(error)
+        }
+    }
+    
     func cleanCookie() async {
         await webViewCleaner.clean(for: "unsplash.com")
         await oAuth2TokenStorage.cleanToken()
         
         eventsHandler(.onLogOut)
     }
+    
+    func handle(output: ImageListOutput) {
+        switch output {
+        case .onImageTap(let uRL):
+            eventsHandler(.onImageTap(uRL))
+        
+        case .onLikeRemoved:
+            guard case .loaded(let info) = state else {
+                return
+            }
+            print("onLikeRemoved")
+            state = .loaded(info.withLikesCountDecreasedAtOne())
+        }
+    }
 }
 
 private extension ErrorInfo {
+    static var accountAccuracyError: Self {
+        .init(
+            message: "Мы проверим что случилось, отдохните чуть-чуть и попробуйте еще раз",
+            cancelButtonText: "",
+            confirmationButtonText: "Ок",
+            onConfirm: { }
+        )
+    }
+    
     static func profileLogOutConfirmationError(onConfirm: @escaping () -> Void) -> Self {
         .init(
             message: "Уверены что хотите выйти?",
@@ -151,6 +209,28 @@ private extension Profile {
             greeting: bio,
             totalLikes: totalLikes,
             imageData: imageData
+        )
+    }
+}
+
+private extension ProfileModel {
+    func withLikesCountDecreasedAtOne() -> ProfileModel {
+        .init(
+            name: name,
+            email: email,
+            greeting: greeting,
+            totalLikes: totalLikes - 1,
+            image: image
+        )
+    }
+    
+    func with(likesCount: Int) -> ProfileModel {
+        .init(
+            name: name,
+            email: email,
+            greeting: greeting,
+            totalLikes: likesCount,
+            image: image
         )
     }
 }

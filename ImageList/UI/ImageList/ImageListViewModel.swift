@@ -11,7 +11,9 @@ import Foundation
 protocol ImageListViewModelProtocol: ObservableObject {
     var state: ImageListState { get }
     var likeUpdateState: LoadingState { get }
-        
+    var updateState: ImageListUpdateState { get }
+    var isPaginating: Bool { get }
+    
     var isRefreshAlertPresented: Bool { get set }
     var isPaginationAlertPresented: Bool { get set }
     var isLikeUpdateAlertPresented: Bool { get set }
@@ -26,14 +28,15 @@ protocol ImageListViewModelProtocol: ObservableObject {
 
 final class ImageListViewModel: ImageListViewModelProtocol {
     private let imageListManager: ImageListManaging
-    private let shouldRefreshOnAppear: Bool
+    private let imageListType: ImageListType
     private let eventsHandler: (ImageListOutput) -> Void
     
     private var fetchingRequestParams = FetchingRequestParams(maxPerPage: 10)
-    private var isLikeUpdateInProgress = false
         
     @Published private(set) var state: ImageListState = .idle
     @Published private(set) var likeUpdateState: LoadingState = .idle
+    @Published private(set) var updateState: ImageListUpdateState = .idle
+    @Published private(set) var isPaginating = false
     
     @Published var isRefreshAlertPresented = false
     @Published var isPaginationAlertPresented = false
@@ -41,22 +44,26 @@ final class ImageListViewModel: ImageListViewModelProtocol {
     
     init(
         imageListManager: ImageListManaging,
-        shouldRefreshOnAppear: Bool = false,
+        imageListType: ImageListType,
         eventsHandler: @escaping (ImageListOutput) -> Void
     ) {
+        self.imageListType = imageListType
         self.imageListManager = imageListManager
-        self.shouldRefreshOnAppear = shouldRefreshOnAppear
         self.eventsHandler = eventsHandler
         
-        $state
-            .compactMap { $0.refreshState?.isError }
+        $updateState
+            .compactMap { $0.isRefreshingError }
             .delay(for: .seconds(1), scheduler: RunLoop.main)
             .assign(to: &$isRefreshAlertPresented)
         
-        $state
-            .compactMap { $0.paginationState?.isError }
+        $updateState
+            .compactMap { $0.isPaginationError }
             .assign(to: &$isPaginationAlertPresented)
-               
+        
+        $updateState
+            .map { $0.isPaginating }
+            .assign(to: &$isPaginating)
+                              
         $likeUpdateState
             .map { $0.isError }
             .assign(to: &$isLikeUpdateAlertPresented)
@@ -64,7 +71,7 @@ final class ImageListViewModel: ImageListViewModelProtocol {
     
     func onAppear() {
         Task {
-            guard !state.isLoaded || shouldRefreshOnAppear else {
+            guard !state.isLoaded || imageListType.shouldRefreshOnApperIfAlreadyLoaded else {
                 return
             }
             
@@ -91,7 +98,7 @@ final class ImageListViewModel: ImageListViewModelProtocol {
     }
     
     func onImageTap(at index: Int) {
-        guard case .loaded(let models, _, _) = state, let model = models.elementOrNil(at: index) else {
+        guard case .loaded(let models) = state, let model = models.elementOrNil(at: index) else {
             return
         }
         
@@ -121,13 +128,15 @@ private extension ImageListViewModel {
         state = .loading
         
         do {
+            fetchingRequestParams.resetPage()
+            
             let fetchedImages = try await imageListManager.fetchPhotosNextPage(fetchingRequestParams)
             
             fetchingRequestParams.incrementPage()
             
             let models = fetchedImages.map { $0.toPhotoModel(with: $1) }
             
-            state = .loaded(models, paginationState: .idle, refreshState: .idle)
+            state = .loaded(models)
         }
         catch {
             state = .error
@@ -140,11 +149,11 @@ private extension ImageListViewModel {
             return
         }
         
-        guard case .loaded(let currentModels, let paginationState, _) = state, !paginationState.isLoading else {
+        guard case .loaded(let currentModels) = state, !updateState.isPaginating else {
             return
         }
-                
-        state = .loaded(currentModels, paginationState: .loading, refreshState: .idle)
+        
+        updateState = .paginate(.loading)
         
         do {
             let fetchedImages = try await imageListManager.fetchPhotosNextPage(fetchingRequestParams)
@@ -153,20 +162,21 @@ private extension ImageListViewModel {
             
             let models = fetchedImages.map { $0.toPhotoModel(with: $1) }
             
-            state = .loaded(currentModels + models, paginationState: .idle, refreshState: .idle)
+            updateState = .paginate(.idle)
+            state = .loaded(currentModels + models)
         }
         catch {
-            state = .loaded(currentModels, paginationState: .error(.paginationError), refreshState: .idle)
+            updateState = .paginate(.error(.paginationError))
             debugPrint(error)
         }
     }
     
     func refreshList() async {
-        guard case .loaded(let currentModels, _, let refreshState) = state, !refreshState.isLoading else {
+        guard case .loaded = state, !updateState.isRefreshing else {
             return
         }
         
-        state = .loaded(currentModels, paginationState: .idle, refreshState: .loading)
+        updateState = .pullToRefresh(.loading)
         
         do {
             fetchingRequestParams.resetPage()
@@ -177,10 +187,11 @@ private extension ImageListViewModel {
             
             let models = fetchedImages.map { $0.toPhotoModel(with: $1) }
             
-            state = .loaded(models, paginationState: .idle, refreshState: .idle)
+            updateState = .pullToRefresh(.idle)
+            state = .loaded(models)
         }
         catch {
-            state = .loaded(currentModels, paginationState: .idle, refreshState: .error(.refreshError))
+            updateState = .pullToRefresh(.error(.refreshError))
             debugPrint(error)
         }
     }
@@ -190,7 +201,7 @@ private extension ImageListViewModel {
             return
         }
            
-        guard case .loaded(var models, _, _) = state, let model = models.elementOrNil(at: index) else {
+        guard case .loaded(var models) = state, let model = models.elementOrNil(at: index) else {
             return
         }
         
@@ -199,10 +210,21 @@ private extension ImageListViewModel {
         do {
             let isLiked = try await imageListManager.changeLike(photoId: model.id, isLiked: !model.isLiked)
             
-            _ = models.remove(at: index)
-            models.insert(model.withIsLiked(isLiked), at: index)
-            
-            state = .loaded(models, paginationState: .idle, refreshState: .idle)
+            switch imageListType {
+            case .all:
+                _ = models.remove(at: index)
+                models.insert(model.withIsLiked(isLiked), at: index)
+                state = .loaded(models)
+                
+            case .onlyFavorite:
+                _ = models.remove(at: index)
+                state = .loaded(models)
+                
+                if !isLiked {
+                    eventsHandler(.onLikeRemoved)
+                }
+            }
+                        
             likeUpdateState = .idle
         }
         catch {
@@ -251,5 +273,14 @@ private extension ErrorInfo {
             confirmationButtonText: "Ок",
             onConfirm: { }
         )
+    }
+}
+
+private extension ImageListType {
+    var shouldRefreshOnApperIfAlreadyLoaded: Bool {
+        switch self {
+        case .all: false
+        case .onlyFavorite: true
+        }
     }
 }

@@ -34,4 +34,18 @@ struct ProfileModel: Equatable {
             self.image = nil
         }
     }
+    
+    init(
+        name: String,
+        email: String,
+        greeting: String,
+        totalLikes: Int,
+        image: UIImage?
+    ) {
+        self.name = name
+        self.email = email
+        self.greeting = greeting
+        self.totalLikes = totalLikes
+        self.image = image
+    }
 }

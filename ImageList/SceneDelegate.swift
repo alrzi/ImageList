@@ -179,7 +179,7 @@ private extension LoginCoordinator {
         
         let viewController = TabBarController(
             imagesListNavigationController: navigationController,
-            profileViewController: profileViewController
+            profileViewController: UINavigationController(rootViewController: profileViewController)
         )
                 
         window.rootViewController = viewController
@@ -211,12 +211,14 @@ private extension LoginCoordinator {
     func handle(output: ImageListOutput) {
         switch output {
         case .onImageTap(let url): showDetailImage(for: url)
+        case .onLikeRemoved: break
         }
     }
     
     func handle(output: ProfileOutput) {
         switch output {
         case .onLogOut: start()
+        case .onImageTap(let url): showDetailImage(for: url)
         }
     }
 }

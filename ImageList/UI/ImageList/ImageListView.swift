@@ -25,8 +25,13 @@ extension ImageListView: View {
             case .loading, .idle:
                 AppProgressView()
                 
-            case .loaded(let models, let paginationState, _):
-                if !models.isEmpty {
+            case .loaded(let models):
+                if models.isEmpty {
+                    Text("Пока пусто")
+                        .font(.system(size: 23, weight: .bold))
+                        .foregroundStyle(.white)
+                }
+                else {
                     GeometryReader { proxy in
                         ScrollableLazyVStack {
                             ForEach(Array(models.enumerated()), id: \.1.id) { index, model in
@@ -43,7 +48,7 @@ extension ImageListView: View {
                                 .onAppear { viewModel.onImageAppear(at: index) }
                             }
                             
-                            if paginationState.isLoading {
+                            if viewModel.isPaginating {
                                 ProgressView()
                                     .scaleEffect(2)
                                     .tint(.white)
@@ -58,11 +63,6 @@ extension ImageListView: View {
                     .onAppear {
                         UIRefreshControl.appearance().tintColor = UIColor.white
                     }
-                }
-                else {
-                    Text("Пока пусто")
-                        .font(.system(size: 23, weight: .bold))
-                        .foregroundStyle(.white)
                 }
                 
             case .error:
@@ -85,7 +85,7 @@ extension ImageListView: View {
         .alert(
             "Не удалось обновить список",
             isPresented: $viewModel.isRefreshAlertPresented,
-            presenting: viewModel.state.refreshState?.error,
+            presenting: viewModel.updateState.refreshError,
             actions: { error in
                 Button(action: { }) {
                     Text(error.confirmationButtonText)
@@ -98,7 +98,7 @@ extension ImageListView: View {
         .alert(
             "Не удалось подгрузить еще картинок",
             isPresented: $viewModel.isPaginationAlertPresented,
-            presenting: viewModel.state.paginationState?.error,
+            presenting: viewModel.updateState.paginationError,
             actions: { error in
                 Button(action: { }) {
                     Text(error.confirmationButtonText)
@@ -115,6 +115,6 @@ extension ImageListView: View {
 
 #if DEBUG
 #Preview {
-    ImageListView(viewModel: ImageListViewModel(imageListManager: DebugImageListManager()) { _ in })
+    ImageListView(viewModel: ImageListViewModel(imageListManager: DebugImageListManager(), imageListType: .all) { _ in })
 }
 #endif

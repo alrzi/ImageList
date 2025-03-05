@@ -9,4 +9,5 @@ import Foundation
 
 enum ProfileOutput: Sendable {
     case onLogOut
+    case onImageTap(URL)
 }

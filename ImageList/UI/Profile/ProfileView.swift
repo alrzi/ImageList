@@ -33,18 +33,18 @@ extension ProfileView: View {
                     
                     Spacer(minLength: 0)
                     
-                    ImageListView(viewModel: viewModel.imageListViewModel)
-                        .padding(.vertical, 8)
-                    
-                    Spacer(minLength: 0)
+                    if let viewModel = viewModel.imageListViewModel {
+                        ImageListView(viewModel: viewModel)
+                            .padding(.vertical, 8)
+                        
+                        Spacer(minLength: 0)
+                    }
                 }
                 
             case .error:
                 ErrorView(onRetry: viewModel.onRetry)
             }
         }
-        .background(.black)
-        .onAppear(perform: viewModel.onAppear)
         .alert(
             "Пока, пока!",
             isPresented: $viewModel.isLogOutConfirmationErrorPresented,
@@ -60,6 +60,21 @@ extension ProfileView: View {
                 Text(error.message)
             }
         )
+        .alert(
+            "Не удалось актуализировать профайл, количество лайком может быть неверно!",
+            isPresented: $viewModel.isAccountAccuracyErrorPresented,
+            presenting: viewModel.accountAccuracyError,
+            actions: { error in
+                Button(action: { }) {
+                    Text(error.confirmationButtonText)
+                }
+            },
+            message: { error in
+                Text(error.message)
+            }
+        )
+        .background(.black)
+        .onAppear(perform: viewModel.onAppear)
     }
 }
 
@@ -168,9 +183,12 @@ private struct ProfileTopView: View {
 private final class ViewModel: ProfileViewModelProtocol {
     let state: ViewModelState<ProfileModel>
     let logOutConfirmationError: ErrorInfo? = nil
-    let imageListViewModel = ImageListViewModel(imageListManager: DebugImageListManager()) { _ in }
+    let accountAccuracyError: ErrorInfo? = nil
+    
+    let imageListViewModel: ImageListViewModel? = ImageListViewModel(imageListManager: DebugImageListManager(), imageListType: .onlyFavorite) { _ in }
     
     var isLogOutConfirmationErrorPresented = false
+    var isAccountAccuracyErrorPresented = false
     
     init(state: ViewModelState<ProfileModel>) {
         self.state = state

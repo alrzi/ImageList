@@ -9,4 +9,5 @@ import Foundation
 
 enum ImageListOutput: Sendable {
     case onImageTap(URL)
+    case onLikeRemoved
 }

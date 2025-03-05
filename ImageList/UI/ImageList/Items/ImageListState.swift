@@ -10,7 +10,7 @@ import Foundation
 enum ImageListState {
     case idle
     case loading
-    case loaded([ImageListCellViewModel], paginationState: LoadingState, refreshState: LoadingState)
+    case loaded([ImageListCellViewModel])
     case error
     
     var isLoaded: Bool {
@@ -28,25 +28,11 @@ enum ImageListState {
     }
     
     var lastElementIndex: Int {
-        if case .loaded(let collection, _, _) = self {
+        if case .loaded(let collection) = self {
             return collection.count - 1
         }
         else {
             return 0
-        }
-    }
-    
-    var paginationState: LoadingState? {
-        switch self {
-        case .idle, .loading, .error: nil
-        case .loaded(_, let state, _): state
-        }
-    }
-    
-    var refreshState: LoadingState? {
-        switch self {
-        case .idle, .loading, .error: nil
-        case .loaded(_, _, let state): state
         }
     }
 }

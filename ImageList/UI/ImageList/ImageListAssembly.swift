@@ -19,6 +19,7 @@ final class ImageListAssembly {
     func assemble(_ context: ViewContext<(), ImageListOutput>) -> UIViewController {
         let viewModel = ImageListViewModel(
             imageListManager: imageListManager,
+            imageListType: .all,
             eventsHandler: { context.output($0) }
         )
         
