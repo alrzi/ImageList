@@ -20,7 +20,7 @@ final class LoginCoordinator: Coordinator {
     private let navigationController: UINavigationController
 
     init(
-        oAuth2TokenStorage: any OAuth2TokenStorageProtocol,
+        oAuth2TokenStorage: some OAuth2TokenStorageProtocol,
         webViewAssembly: WebViewAssembly,
         authAssembly: AuthAssembly,
         profileAssembly: ProfileAssembly,
@@ -54,7 +54,6 @@ final class LoginCoordinator: Coordinator {
                 showHome()
             }
             catch {
-                
                 showAuthView()
             }
         }

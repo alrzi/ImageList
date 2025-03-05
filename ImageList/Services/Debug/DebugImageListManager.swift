@@ -21,7 +21,7 @@ struct DebugImageListManager: ImageListManaging {
         let endIndex = startIndex + itemsPerPage - 1
 
         for index in startIndex...endIndex {
-            guard let uiImage = UIImage(named: "image\(index)") else {
+            guard let uiImage = UIImage(named: "\(index)") else {
                 continue
             }
 
