@@ -17,7 +17,7 @@ struct TabBarCoordinator: Coordinator {
     private let imageListNavigationController: UINavigationController
     private let profileNavigationController: UINavigationController
     
-    let onComplete: () -> Void
+    private let onComplete: () -> Void
     
     init(
         profileAssembly: ProfileAssembly,
