@@ -43,25 +43,3 @@ public extension UnsplashAuthConfiguration {
         }
     }
 }
-
-extension UnsplashAuthConfiguration {
-    public static var standard: UnsplashAuthConfiguration {
-        UnsplashAuthConfiguration(
-            accessKey: AccessKey,
-            secretKey: SecretKey,
-            redirectURI: RedirectURI,
-            accessScope: AccessScopes,
-            defaultBaseHost: DefaultBaseHost,
-            oAuthHost: OAuthHost
-        )
-    }
-}
-
-// swiftlint:disable identifier_name
-public let AccessKey = "SS4lXp7vzIwOgPt0F2sOiUW-jsD6--h2Red2jA82kbQ"
-public let SecretKey = "0xgcQI41BRbflXzVQ8oIAmKQd--Dk-cYJ-TV44d5d3k"
-public let RedirectURI = "urn:ietf:wg:oauth:2.0:oob"
-public let AccessScopes: [UnsplashAuthConfiguration.AccessScope] = [.public, .readUser, .writeLikes]
-public let DefaultBaseHost = "https://api.unsplash.com"
-public let OAuthHost = "https://unsplash.com"
-// swiftlint:enable identifier_name

@@ -8,7 +8,11 @@
 import Foundation
 
 public enum ImageListDomainContainer {
-    public static func buildImageListManager(
+    public static func oAuth2TokenStorage(secureStorage: SecureStorageProtocol) -> OAuth2TokenStorageProtocol {
+        OAuth2TokenStorage(secureStorage: secureStorage)
+    }
+    
+    public static func imageListManager(
         photosListService: PhotosListServiceProtocol,
         imageService: ImageServiceProtocol,
         likeService: LikeServiceProtocol

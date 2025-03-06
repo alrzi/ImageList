@@ -6,23 +6,23 @@
 //
 
 import Foundation
-internal import NetworkService
 import ImageListDomain
+internal import NetworkService
 
 struct ProfileImageURLService: ProfileImageURLServiceProtocol {
     private let networkService: NetworkServiceProtocol
     private let oAuth2TokenStorage: OAuth2TokenStorageProtocol
     
-    private let authConfiguration: UnsplashAuthConfiguration
+    private let authConfigurationProvider: AuthConfigurationProviding
     
     init(
         networkService: NetworkServiceProtocol,
         oAuth2TokenStorage: OAuth2TokenStorageProtocol,
-        authConfiguration: UnsplashAuthConfiguration
+        authConfigurationProvider: AuthConfigurationProviding
     ) {
         self.networkService = networkService
         self.oAuth2TokenStorage = oAuth2TokenStorage
-        self.authConfiguration = authConfiguration
+        self.authConfigurationProvider = authConfigurationProvider
     }
     
     func fetchProfileImageUrl(username: String) async throws -> URL {
@@ -31,7 +31,7 @@ struct ProfileImageURLService: ProfileImageURLServiceProtocol {
         let request = API.ProfileImageURLRequest(
             token: token,
             username: username,
-            authConfiguration: authConfiguration
+            authConfiguration: authConfigurationProvider.config
         )
                 
         let response = try await networkService.fetchData(for: request)

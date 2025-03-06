@@ -6,26 +6,26 @@
 //
 
 import Foundation
-internal import NetworkService
 import ImageListDomain
+internal import NetworkService
 
 struct OAuth2Service: OAuth2ServiceProtocol {
     private let networkService: NetworkServiceProtocol
     
-    private let authConfiguration: UnsplashAuthConfiguration
+    private let authConfigurationProvider: AuthConfigurationProviding
         
     init(
         networkService: NetworkServiceProtocol,
-        authConfiguration: UnsplashAuthConfiguration
+        authConfigurationProvider: AuthConfigurationProviding
     ) {
         self.networkService = networkService
-        self.authConfiguration = authConfiguration
+        self.authConfigurationProvider = authConfigurationProvider
     }
     
     func fetchOAuthToken(withCode code: String) async throws -> String {
         let request = API.OAuth2TokenRequest(
             code: code,
-            authConfiguration: authConfiguration
+            authConfiguration: authConfigurationProvider.config
         )
                 
         let response = try await networkService.fetchData(for: request)

@@ -7,7 +7,6 @@
 
 import Foundation
 import Combine
-import ImageListData
 
 @MainActor
 protocol WebViewModelProtocol: AnyObject {
@@ -28,13 +27,14 @@ final class WebViewModel: WebViewModelProtocol {
     
     init(
         authHelper: WebViewAuthHelper = .init(),
+        authConfigurationProvider: UnsplashAuthConfigurationProvider,
         onComplete: @escaping (WebViewOutput) -> Void
     ) {
         self.authHelper = authHelper
         self.onComplete = onComplete
                         
         do {
-            request = try API.AuthRequest(authConfiguration: .standard).asURLRequest()
+            request = try API.AuthRequest(authConfiguration: authConfigurationProvider.config).asURLRequest()
         }
         catch {
             debugPrint(error)

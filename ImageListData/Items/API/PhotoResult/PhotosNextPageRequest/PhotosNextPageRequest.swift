@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ImageListDomain
 internal import NetworkService
 
 extension API.PhotoResult {

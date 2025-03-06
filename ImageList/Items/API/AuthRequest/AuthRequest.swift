@@ -7,12 +7,10 @@
 
 import Foundation
 import NetworkService
-import ImageListData
+import ImageListDomain
 
 extension API {
-    struct AuthRequest: RequestProtocol {
-        typealias Response = ()
-        
+    struct AuthRequest: RequestConvertible {
         let method: HTTPMethod = .get
         let timeoutInterval: TimeInterval = 30
         let authConfiguration: UnsplashAuthConfiguration

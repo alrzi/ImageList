@@ -6,8 +6,8 @@
 //
 
 import Foundation
-internal import NetworkService
 import ImageListDomain
+internal import NetworkService
 
 struct ImageService: ImageServiceProtocol {
     private let networkService: NetworkServiceProtocol
@@ -16,7 +16,7 @@ struct ImageService: ImageServiceProtocol {
         self.networkService = networkService
     }
     
-    func fetchProfileImage(url: URL) async throws -> Data {
+    func fetchImage(url: URL) async throws -> Data {
         let request = URLRequestWrapper(request: URLRequest(url: url), method: .get)
         
         return try await networkService.fetchData(for: request)

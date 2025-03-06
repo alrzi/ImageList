@@ -14,35 +14,51 @@ public enum ImageListDataContainer {
     
     public static let secureStorage: SecureStorageProtocol = KeychainService()
     
-    public static var oAuth2TokenStorage: OAuth2TokenStorageProtocol { OAuth2TokenStorage(keychain: secureStorage) }
     public static var imageService: ImageServiceProtocol { ImageService(networkService: networkService) }
     
-    public static func oAuth2Service(authConfiguration: UnsplashAuthConfiguration) -> OAuth2ServiceProtocol {
-        OAuth2Service(networkService: networkService, authConfiguration: authConfiguration)
+    public static func oAuth2Service(
+        authConfigurationProvider: AuthConfigurationProviding
+    ) -> OAuth2ServiceProtocol {
+        OAuth2Service(networkService: networkService, authConfigurationProvider: authConfigurationProvider)
     }
     
-    public static func likeService(authConfiguration: UnsplashAuthConfiguration) -> LikeServiceProtocol {
-        LikeService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage, authConfiguration: authConfiguration)
+    public static func likeService(
+        authConfigurationProvider: AuthConfigurationProviding,
+        oAuth2TokenStorage: OAuth2TokenStorageProtocol
+    ) -> LikeServiceProtocol {
+        LikeService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage, authConfigurationProvider: authConfigurationProvider)
     }
     
-    public static func profileImageURLService(authConfiguration: UnsplashAuthConfiguration) -> ProfileImageURLServiceProtocol {
-        ProfileImageURLService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage, authConfiguration: authConfiguration)
+    public static func profileImageURLService(
+        authConfigurationProvider: AuthConfigurationProviding,
+        oAuth2TokenStorage: OAuth2TokenStorageProtocol
+    ) -> ProfileImageURLServiceProtocol {
+        ProfileImageURLService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage, authConfigurationProvider: authConfigurationProvider)
     }
     
-    public static func profileService(authConfiguration: UnsplashAuthConfiguration) -> ProfileServiceProtocol {
-        ProfileService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage, authConfiguration: authConfiguration)
+    public static func profileService(
+        authConfigurationProvider: AuthConfigurationProviding,
+        oAuth2TokenStorage: OAuth2TokenStorageProtocol
+    ) -> ProfileServiceProtocol {
+        ProfileService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage, authConfigurationProvider: authConfigurationProvider)
     }
     
-    public static func photosListService(authConfiguration: UnsplashAuthConfiguration) -> PhotosListServiceProtocol {
-        PhotosListService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage, authConfiguration: authConfiguration)
+    public static func photosListService(
+        authConfigurationProvider: AuthConfigurationProviding,
+        oAuth2TokenStorage: OAuth2TokenStorageProtocol
+    ) -> PhotosListServiceProtocol {
+        PhotosListService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage, authConfigurationProvider: authConfigurationProvider)
     }
     
-    public static func favoritePhotosListService(authConfiguration: UnsplashAuthConfiguration) -> PhotosListServiceProtocol {
+    public static func favoritePhotosListService(
+        authConfigurationProvider: AuthConfigurationProviding,
+        oAuth2TokenStorage: OAuth2TokenStorageProtocol
+    ) -> PhotosListServiceProtocol {
         FavoritePhotosListService(
             networkService: networkService,
-            profileService: profileService(authConfiguration: authConfiguration),
+            profileService: profileService(authConfigurationProvider: authConfigurationProvider, oAuth2TokenStorage: oAuth2TokenStorage),
             oAuth2TokenStorage: oAuth2TokenStorage,
-            authConfiguration: authConfiguration
+            authConfigurationProvider: authConfigurationProvider
         )
     }
 }

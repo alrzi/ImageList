@@ -41,7 +41,7 @@ struct ImageListManager: ImageListManaging {
                 taskGroup.addTask { [imageService] in
                     let url = try photo.imageURL
                     
-                    let imageData = try await imageService.fetchProfileImage(url: url)
+                    let imageData = try await imageService.fetchImage(url: url)
                     
                     return (photo, imageData: imageData)
                 }

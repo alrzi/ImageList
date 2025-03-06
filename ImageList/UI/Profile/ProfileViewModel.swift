@@ -154,7 +154,7 @@ private extension ProfileViewModel {
     func updateImage(for profile: Profile) async {
         do {
             let imageURL = try await profileImageURLService.fetchProfileImageUrl(username: profile.username)
-            let imageData = try await imageService.fetchProfileImage(url: imageURL)
+            let imageData = try await imageService.fetchImage(url: imageURL)
             
             state = .loaded(profile.toProfileModel(with: imageData))
         }

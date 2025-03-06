@@ -8,5 +8,5 @@
 import Foundation
 
 public protocol ImageServiceProtocol: Sendable {
-    func fetchProfileImage(url: URL) async throws -> Data
+    func fetchImage(url: URL) async throws -> Data
 }

@@ -19,24 +19,24 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
         
         // servises
-        let config: UnsplashAuthConfiguration = .standard
+        let authConfigProvider: UnsplashAuthConfigurationProvider = .init()
         let webViewCleaner = WebViewCookieDataCleaner()
-        
+        let secureStorage = ImageListDataContainer.secureStorage
+        let oAuth2TokenStorage = ImageListDomainContainer.oAuth2TokenStorage(secureStorage: secureStorage)
         let imageService = ImageListDataContainer.imageService
-        let oAuth2Service = ImageListDataContainer.oAuth2Service(authConfiguration: config)
-        let oAuth2TokenStorage = ImageListDataContainer.oAuth2TokenStorage
-        let profileImageURLService = ImageListDataContainer.profileImageURLService(authConfiguration: config)
-        let profileService = ImageListDataContainer.profileService(authConfiguration: config)
-        let likeService = ImageListDataContainer.likeService(authConfiguration: config)
-        let photosListService = ImageListDataContainer.photosListService(authConfiguration: config)
-        let favoritePhotosService = ImageListDataContainer.favoritePhotosListService(authConfiguration: config)
+        let oAuth2Service = ImageListDataContainer.oAuth2Service(authConfigurationProvider: authConfigProvider)
+        let profileImageURLService = ImageListDataContainer.profileImageURLService(authConfigurationProvider: authConfigProvider, oAuth2TokenStorage: oAuth2TokenStorage)
+        let profileService = ImageListDataContainer.profileService(authConfigurationProvider: authConfigProvider, oAuth2TokenStorage: oAuth2TokenStorage)
+        let likeService = ImageListDataContainer.likeService(authConfigurationProvider: authConfigProvider, oAuth2TokenStorage: oAuth2TokenStorage)
+        let photosListService = ImageListDataContainer.photosListService(authConfigurationProvider: authConfigProvider, oAuth2TokenStorage: oAuth2TokenStorage)
+        let favoritePhotosService = ImageListDataContainer.favoritePhotosListService(authConfigurationProvider: authConfigProvider, oAuth2TokenStorage: oAuth2TokenStorage)
         
-        let imageListManager = ImageListDomainContainer.buildImageListManager(
+        let imageListManager = ImageListDomainContainer.imageListManager(
             photosListService: photosListService,
             imageService: imageService,
             likeService: likeService
         )
-        let favoriteImageListManager = ImageListDomainContainer.buildImageListManager(
+        let favoriteImageListManager = ImageListDomainContainer.imageListManager(
             photosListService: favoritePhotosService,
             imageService: imageService,
             likeService: likeService
@@ -44,7 +44,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         // assemblies
         
-        let webViewAssembly = WebViewAssembly()
+        let webViewAssembly = WebViewAssembly(authConfigurationProvider: authConfigProvider)
         let authAssembly = AuthAssembly(oAuth2TokenStorage: oAuth2TokenStorage, oAuth2Service: oAuth2Service)
         
         let profileAssembly = ProfileAssembly(
