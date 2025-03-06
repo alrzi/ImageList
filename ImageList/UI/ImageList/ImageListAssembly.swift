@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Foundation
+import ImageListDomain
 
 final class ImageListAssembly {
     private let imageListManager: ImageListManaging

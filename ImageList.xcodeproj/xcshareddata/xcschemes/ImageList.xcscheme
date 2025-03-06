@@ -60,6 +60,17 @@
                ReferencedContainer = "container:ImageList.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "F93FE8AF2D789BFF006FF4F4"
+               BuildableName = "ImageListDataTests.xctest"
+               BlueprintName = "ImageListDataTests"
+               ReferencedContainer = "container:ImageList.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

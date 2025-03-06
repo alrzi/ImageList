@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ImageListDomain
 
 @MainActor
 protocol AuthViewModelProtocol: ObservableObject {

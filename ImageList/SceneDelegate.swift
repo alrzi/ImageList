@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import ImageListDomain
+import ImageListData
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
@@ -17,21 +19,28 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
         
         // servises
-               
-        let session = URLSession.shared
-        let keychain = KeychainService()
-        let networkService = NetworkClient(session: session)
-        let oAuth2Service = OAuth2Service(networkService: networkService)
-        let oAuth2TokenStorage = OAuth2TokenStorage(keychain: keychain)
-        let profileImageURLService = ProfileImageURLService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
-        let profileService = ProfileService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
+        let config: UnsplashAuthConfiguration = .standard
         let webViewCleaner = WebViewCookieDataCleaner()
-        let imageService = ImageService(networkService: networkService)
-        let likeService = LikeService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
-        let photosListService = PhotosListService(networkService: networkService, oAuth2TokenStorage: oAuth2TokenStorage)
-        let imageListManager = ImageListManager(photosListService: photosListService, imageService: imageService, likeService: likeService)
-        let favoritePhotosService = FavoritePhotosListService(networkService: networkService, profileService: profileService, oAuth2TokenStorage: oAuth2TokenStorage)
-        let favoriteImageListManager = ImageListManager(photosListService: favoritePhotosService, imageService: imageService, likeService: likeService)
+        
+        let imageService = ImageListDataContainer.imageService
+        let oAuth2Service = ImageListDataContainer.oAuth2Service(authConfiguration: config)
+        let oAuth2TokenStorage = ImageListDataContainer.oAuth2TokenStorage
+        let profileImageURLService = ImageListDataContainer.profileImageURLService(authConfiguration: config)
+        let profileService = ImageListDataContainer.profileService(authConfiguration: config)
+        let likeService = ImageListDataContainer.likeService(authConfiguration: config)
+        let photosListService = ImageListDataContainer.photosListService(authConfiguration: config)
+        let favoritePhotosService = ImageListDataContainer.favoritePhotosListService(authConfiguration: config)
+        
+        let imageListManager = ImageListDomainContainer.buildImageListManager(
+            photosListService: photosListService,
+            imageService: imageService,
+            likeService: likeService
+        )
+        let favoriteImageListManager = ImageListDomainContainer.buildImageListManager(
+            photosListService: favoritePhotosService,
+            imageService: imageService,
+            likeService: likeService
+        )
         
         // assemblies
         

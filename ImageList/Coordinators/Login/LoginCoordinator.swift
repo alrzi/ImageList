@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import ImageListDomain
 
 final class LoginCoordinator: Coordinator {
     private let oAuth2TokenStorage: any OAuth2TokenStorageProtocol

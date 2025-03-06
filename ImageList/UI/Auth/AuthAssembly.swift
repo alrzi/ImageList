@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Foundation
+import ImageListDomain
 
 final class AuthAssembly {
     private let oAuth2TokenStorage: OAuth2TokenStorageProtocol

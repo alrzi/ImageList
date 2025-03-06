@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ImageListDomain
 
 #if DEBUG
 struct DebugProfileService: ProfileServiceProtocol {

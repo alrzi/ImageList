@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ImageListDomain
 
 @MainActor
 protocol ImageListViewModelProtocol: ObservableObject {
@@ -31,7 +32,7 @@ final class ImageListViewModel: ImageListViewModelProtocol {
     private let imageListType: ImageListType
     private let eventsHandler: (ImageListOutput) -> Void
     
-    private var fetchingRequestParams = FetchingRequestParams(maxPerPage: 10)
+    private var fetchingRequestParams = FetchingRequestParams()
         
     @Published private(set) var state: ImageListState = .idle
     @Published private(set) var likeUpdateState: LoadingState = .idle
@@ -130,7 +131,7 @@ private extension ImageListViewModel {
         do {
             fetchingRequestParams.resetPage()
             
-            let fetchedImages = try await imageListManager.fetchPhotosNextPage(fetchingRequestParams)
+            let fetchedImages = try await imageListManager.fetchPhotosNextPage(fetchingRequestParams.page)
             
             fetchingRequestParams.incrementPage()
             
@@ -156,7 +157,7 @@ private extension ImageListViewModel {
         updateState = .paginate(.loading)
         
         do {
-            let fetchedImages = try await imageListManager.fetchPhotosNextPage(fetchingRequestParams)
+            let fetchedImages = try await imageListManager.fetchPhotosNextPage(fetchingRequestParams.page)
             
             fetchingRequestParams.incrementPage()
             
@@ -181,7 +182,7 @@ private extension ImageListViewModel {
         do {
             fetchingRequestParams.resetPage()
             
-            let fetchedImages = try await imageListManager.fetchPhotosNextPage(fetchingRequestParams)
+            let fetchedImages = try await imageListManager.fetchPhotosNextPage(fetchingRequestParams.page)
             
             fetchingRequestParams.incrementPage()
             

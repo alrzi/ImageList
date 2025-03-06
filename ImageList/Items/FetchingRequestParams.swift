@@ -8,12 +8,7 @@
 import Foundation
 
 struct FetchingRequestParams {
-    let maxPerPage: Int
     private(set) var page: Int = 1
-    
-    init(maxPerPage: Int) {
-        self.maxPerPage = maxPerPage
-    }
     
     mutating func incrementPage() {
         page += 1

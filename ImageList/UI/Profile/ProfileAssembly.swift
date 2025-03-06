@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Foundation
+import ImageListDomain
 
 final class ProfileAssembly {
     private let favoriteImageListManager: ImageListManaging

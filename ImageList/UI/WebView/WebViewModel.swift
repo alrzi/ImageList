@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import ImageListData
 
 @MainActor
 protocol WebViewModelProtocol: AnyObject {

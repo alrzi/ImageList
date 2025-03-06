@@ -8,16 +8,17 @@
 #if DEBUG
 import Foundation
 import UIKit
+import ImageListDomain
 
 struct DebugImageListManager: ImageListManaging {
     typealias ReturnType = (Photo, imageData: Data)
     
-    func fetchPhotosNextPage(_ params: FetchingRequestParams) async throws -> [ReturnType] {
+    func fetchPhotosNextPage(_ page: Int) async throws -> [ReturnType] {
         var mockItems: [ReturnType] = []
 
         let itemsPerPage = 8
 
-        let startIndex = (params.page - 1) * itemsPerPage + 1
+        let startIndex = (page - 1) * itemsPerPage + 1
         let endIndex = startIndex + itemsPerPage - 1
 
         for index in startIndex...endIndex {
@@ -40,7 +41,7 @@ struct DebugImageListManager: ImageListManaging {
             mockItems.append((photo, imageData))
         }
 
-        if params.page >= 2 {
+        if page >= 2 {
             throw Errors.failed
         }
         else {
