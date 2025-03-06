@@ -73,7 +73,7 @@ struct ImageListCellView: View {
 #Preview {
     ImageListCellView(
         model: .init(
-            id: "1",
+            imageId: "1",
             isLiked: false,
             date: .now,
             imageSize: .init(width: 400, height: 300),

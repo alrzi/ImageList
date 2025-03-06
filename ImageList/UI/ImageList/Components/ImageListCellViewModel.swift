@@ -8,7 +8,8 @@
 import Foundation
 
 struct ImageListCellViewModel: Identifiable {
-    let id: String
+    let id = UUID()
+    let imageId: String
     var isLiked: Bool
     let date: Date
     let imageSize: CGSize

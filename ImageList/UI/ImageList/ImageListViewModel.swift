@@ -159,6 +159,12 @@ private extension ImageListViewModel {
         do {
             let fetchedImages = try await imageListManager.fetchPhotosNextPage(fetchingRequestParams.page)
             
+            if fetchedImages.isEmpty {
+                updateState = .paginate(.idle)
+                
+                return
+            }
+            
             fetchingRequestParams.incrementPage()
             
             let models = fetchedImages.map { $0.toPhotoModel(with: $1) }
@@ -209,7 +215,7 @@ private extension ImageListViewModel {
         likeUpdateState = .loading
              
         do {
-            let isLiked = try await imageListManager.changeLike(photoId: model.id, isLiked: !model.isLiked)
+            let isLiked = try await imageListManager.changeLike(photoId: model.imageId, isLiked: !model.isLiked)
             
             switch imageListType {
             case .all:
@@ -238,7 +244,7 @@ private extension ImageListViewModel {
 private extension Photo {
     func toPhotoModel(with imageData: Data) -> ImageListCellViewModel {
         ImageListCellViewModel(
-            id: id,
+            imageId: id,
             isLiked: isLiked,
             date: createdAt,
             imageSize: size,

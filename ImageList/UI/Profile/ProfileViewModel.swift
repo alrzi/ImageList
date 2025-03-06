@@ -173,7 +173,9 @@ private extension ProfileViewModel {
                 return
             }
             
-            state = .loaded(info.withLikesCountDecreasedAtOne())
+            let newState = info.withLikesCountDecreasedAtOne()
+            
+            state = .loaded(newState)
         }
     }
 }
