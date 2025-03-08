@@ -224,10 +224,10 @@ private extension ImageListViewModel {
                 state = .loaded(models)
                 
             case .onlyFavorite:
-                _ = models.remove(at: index)
-                state = .loaded(models)
-                
                 if !isLiked {
+                    _ = models.remove(at: index)
+                    state = .loaded(models)
+                    
                     eventsHandler(.onLikeRemoved)
                 }
             }

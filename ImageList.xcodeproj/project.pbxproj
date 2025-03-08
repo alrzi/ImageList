@@ -197,7 +197,6 @@
 				F93FC4782D788E37006FF4F4 /* ImageListDomain */,
 				F93FE8AA2D789BFF006FF4F4 /* ImageListData */,
 				F93FE8B62D789BFF006FF4F4 /* ImageListDataTests */,
-				F99266312D78D51700CD4255 /* Frameworks */,
 				F9843EEC295847EA00EB2CF4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -213,13 +212,6 @@
 				F93FE8B02D789BFF006FF4F4 /* ImageListDataTests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		F99266312D78D51700CD4255 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -426,7 +418,7 @@
 			packageReferences = (
 				F9C3F97E2998F6A100133F25 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				F9A75E462D745CFF00B7620F /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
-				F93FE8CB2D789C38006FF4F4 /* XCLocalSwiftPackageReference "../../../NetworkService" */,
+				F9803CD82D7C96F7005BEAC5 /* XCLocalSwiftPackageReference "../../../../../../Volumes/KINGSTON/MyPackages/NetworkService" */,
 			);
 			productRefGroup = F9843EEC295847EA00EB2CF4 /* Products */;
 			projectDirPath = "";
@@ -587,7 +579,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = qwe.ImageListUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = ImageList;
 			};
@@ -605,7 +597,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = qwe.ImageListUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = ImageList;
 			};
@@ -645,7 +637,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -685,7 +677,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -726,7 +718,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -766,7 +758,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -789,7 +781,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ImageList.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ImageList";
 			};
@@ -810,7 +802,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = asddd.ImageListDataTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ImageList.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ImageList";
 			};
@@ -1103,9 +1095,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		F93FE8CB2D789C38006FF4F4 /* XCLocalSwiftPackageReference "../../../NetworkService" */ = {
+		F9803CD82D7C96F7005BEAC5 /* XCLocalSwiftPackageReference "../../../../../../Volumes/KINGSTON/MyPackages/NetworkService" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../../NetworkService;
+			relativePath = ../../../../../../Volumes/KINGSTON/MyPackages/NetworkService;
 		};
 /* End XCLocalSwiftPackageReference section */
 
