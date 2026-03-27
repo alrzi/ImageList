@@ -1,0 +1,21 @@
+{
+  "images" : [
+    {
+      "filename" : "1658196013_1-adonius-club-p-pestraya-ptitsa-ptitsi-krasivo-foto-1.jpg",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
