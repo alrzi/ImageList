@@ -9,5 +9,4 @@ import Foundation
 
 enum ImageListOutput {
     case onImageTap(URL)
-    case onLikeRemoved
 }

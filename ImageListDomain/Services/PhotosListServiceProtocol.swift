@@ -8,5 +8,5 @@
 import Foundation
 
 public protocol PhotosListServiceProtocol: Sendable {
-    func fetchPhotosNextPage(_ page: Int) async throws -> [Photo]
+    func fetchPhotosNextPage(_ page: Int, type: PhotoType) async throws -> [Photo]
 }

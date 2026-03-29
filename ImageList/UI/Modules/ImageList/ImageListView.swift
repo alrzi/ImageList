@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ImageListDomain
 
 @MainActor
 struct ImageListView<ViewModel: ImageListViewModelProtocol> {
@@ -133,11 +134,13 @@ private struct SkeletonModelsView: View {
 #if DEBUG
     #Preview {
         let factory = ImageListCellViewModelFactory(imageLoader: DebugCachedImageLoader())
-        return ImageListView(
+        let favoriteManager = FavoriteManager(likeService: DebugLikeService(), profileService: DebugProfileService())
+        ImageListView(
             viewModel: ImageListViewModel(
                 imageListManager: DebugImageListManager(),
                 imageListType: .all,
-                factory: factory
+                factory: factory,
+                favoriteManager: favoriteManager
             ) { _ in
             }
         )

@@ -31,6 +31,7 @@ final class ImageListViewModel: ImageListViewModelProtocol {
     private let imageListManager: ImageListManaging
     private let imageListType: ImageListType
     private let factory: ImageListCellViewModelFactory
+    private let favoriteManager: any FavoriteManaging
     private let eventsHandler: (ImageListOutput) -> Void
 
     private var fetchingRequestParams = FetchingRequestParams()
@@ -48,11 +49,13 @@ final class ImageListViewModel: ImageListViewModelProtocol {
         imageListManager: ImageListManaging,
         imageListType: ImageListType,
         factory: ImageListCellViewModelFactory,
+        favoriteManager: some FavoriteManaging,
         eventsHandler: @escaping (ImageListOutput) -> Void
     ) {
         self.imageListType = imageListType
         self.imageListManager = imageListManager
         self.factory = factory
+        self.favoriteManager = favoriteManager
         self.eventsHandler = eventsHandler
 
         $updateState
@@ -134,7 +137,10 @@ private extension ImageListViewModel {
         do {
             fetchingRequestParams.resetPage()
 
-            let fetchedImages = try await imageListManager.fetchPhotosNextPage(fetchingRequestParams.page)
+            let fetchedImages = try await imageListManager.fetchPhotosNextPage(
+                fetchingRequestParams.page,
+                type: imageListType.photoType
+            )
 
             fetchingRequestParams.incrementPage()
 
@@ -160,7 +166,7 @@ private extension ImageListViewModel {
         updateState = .paginate(.loading)
 
         do {
-            let fetchedImages = try await imageListManager.fetchPhotosNextPage(fetchingRequestParams.page)
+            let fetchedImages = try await imageListManager.fetchPhotosNextPage(fetchingRequestParams.page, type: imageListType.photoType)
 
             if fetchedImages.isEmpty {
                 updateState = .paginate(.idle)
@@ -191,7 +197,7 @@ private extension ImageListViewModel {
         do {
             fetchingRequestParams.resetPage()
 
-            let fetchedImages = try await imageListManager.fetchPhotosNextPage(fetchingRequestParams.page)
+            let fetchedImages = try await imageListManager.fetchPhotosNextPage(fetchingRequestParams.page, type: imageListType.photoType)
 
             fetchingRequestParams.incrementPage()
 
@@ -218,7 +224,7 @@ private extension ImageListViewModel {
         likeUpdateState = .loading
 
         do {
-            let isLiked = try await imageListManager.changeLike(photoId: model.imageId, isLiked: !model.isLiked)
+            let isLiked = try await favoriteManager.changeLike(photoId: model.imageId, isLiked: !model.isLiked)
 
             switch imageListType {
             case .all:
@@ -230,8 +236,6 @@ private extension ImageListViewModel {
                 if !isLiked {
                     _ = models.remove(at: index)
                     state = .loaded(models)
-
-                    eventsHandler(.onLikeRemoved)
                 }
             }
 

@@ -9,9 +9,13 @@
     import Foundation
     import ImageListDomain
     import UIKit
+    import AsyncExtensions
 
     struct DebugImageListManager: ImageListManaging {
-        func fetchPhotosNextPage(_ page: Int) async throws -> [Photo] {
+        private let _photosStream: CurrentValueAsyncSequence<[Photo]?> = .init(nil)
+        var photosStream: CurrentValueAsyncSequenceReadOnly<[Photo]?> { _photosStream.readOnly() }
+
+        func fetchPhotosNextPage(_ page: Int, type: PhotoType) async throws -> [Photo] {
             var mockItems: [Photo] = []
 
             let itemsPerPage = 8

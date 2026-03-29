@@ -27,21 +27,19 @@ final class ModulesAssembly: Assembly {
 
         container.register(ProfileAssembly.self) { r in
             ProfileAssembly(
-                favoriteImageListManager: r.resolve(ImageListManaging.self, name: "favorite")!,
                 profileImageURLService: r.resolve(ProfileImageURLServiceProtocol.self)!,
                 profileService: r.resolve(ProfileServiceProtocol.self)!,
                 userSession: r.resolve(UserSessionProtocol.self)!,
                 webViewCleaner: r.resolve(WebViewCookieDataCleanerProtocol.self)!,
-                imageService: r.resolve(ImageServiceProtocol.self)!,
-                factory: r.resolve(ImageListCellViewModelFactory.self)!,
+                favoriteManager: r.resolve(FavoriteManaging.self)!,
+                imageListViewModelFactory: r.resolve(ImageListViewModelFactoryProtocol.self)!,
                 imageLoader: r.resolve(CachedImageLoaderProtocol.self)!
             )
         }
 
         container.register(ImageListAssembly.self) { r in
             ImageListAssembly(
-                imageListManager: r.resolve(ImageListManaging.self, name: "all")!,
-                factory: r.resolve(ImageListCellViewModelFactory.self)!
+                imageListViewModelFactory: r.resolve(ImageListViewModelFactoryProtocol.self)!
             )
         }
 

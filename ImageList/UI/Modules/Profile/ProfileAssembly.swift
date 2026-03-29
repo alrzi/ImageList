@@ -11,32 +11,29 @@ import NetworkServiceDomain
 import SwiftUI
 
 final class ProfileAssembly {
-    private let favoriteImageListManager: ImageListManaging
     private let profileImageURLService: ProfileImageURLServiceProtocol
     private let profileService: ProfileServiceProtocol
     private let userSession: UserSessionProtocol
     private let webViewCleaner: WebViewCookieDataCleanerProtocol
-    private let imageService: ImageServiceProtocol
-    private let factory: ImageListCellViewModelFactory
+    private let favoriteManager: FavoriteManaging
+    private let imageListViewModelFactory: ImageListViewModelFactoryProtocol
     private let imageLoader: CachedImageLoaderProtocol
 
     init(
-        favoriteImageListManager: ImageListManaging,
         profileImageURLService: ProfileImageURLServiceProtocol,
         profileService: ProfileServiceProtocol,
         userSession: UserSessionProtocol,
         webViewCleaner: WebViewCookieDataCleanerProtocol,
-        imageService: ImageServiceProtocol,
-        factory: ImageListCellViewModelFactory,
+        favoriteManager: FavoriteManaging,
+        imageListViewModelFactory: ImageListViewModelFactoryProtocol,
         imageLoader: CachedImageLoaderProtocol
     ) {
-        self.favoriteImageListManager = favoriteImageListManager
         self.profileImageURLService = profileImageURLService
         self.profileService = profileService
         self.userSession = userSession
         self.webViewCleaner = webViewCleaner
-        self.imageService = imageService
-        self.factory = factory
+        self.favoriteManager = favoriteManager
+        self.imageListViewModelFactory = imageListViewModelFactory
         self.imageLoader = imageLoader
     }
 
@@ -47,9 +44,8 @@ final class ProfileAssembly {
             profileService: profileService,
             userSession: userSession,
             webViewCleaner: webViewCleaner,
-            imageService: imageService,
-            favoriteImageListManager: favoriteImageListManager,
-            factory: factory,
+            favoriteManager: favoriteManager,
+            imageListViewModelFactory: imageListViewModelFactory,
             imageLoader: imageLoader,
             eventsHandler: { context.output($0) }
         )

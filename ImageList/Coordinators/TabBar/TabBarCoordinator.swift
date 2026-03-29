@@ -71,7 +71,6 @@ private extension TabBarCoordinator {
     func handle(output: ImageListOutput) {
         switch output {
         case let .onImageTap(url): showDetailImage(for: url, presentationController: imageListNavigationController)
-        case .onLikeRemoved: break
         }
     }
 

@@ -19,7 +19,6 @@ struct ProfileService: ProfileServiceProtocol {
         )
 
         let response = try await networkService.perform(request)
-
         return response.toProfile()
     }
 }

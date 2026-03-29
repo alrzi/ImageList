@@ -6,8 +6,16 @@
 //
 
 import Foundation
+import ImageListDomain
 
 enum ImageListType {
     case all
     case onlyFavorite
+    
+    var photoType: PhotoType {
+        switch self {
+        case .all: .all
+        case .onlyFavorite: .favorite
+        }
+    }
 }

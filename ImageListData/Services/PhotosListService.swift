@@ -11,29 +11,11 @@ import ImageListDomain
 
 struct PhotosListService: PhotosListServiceProtocol {
     let networkService: NetworkClientProtocol
-    let authConfigurationProvider: AuthConfigurationProviding
-    let photosListCache: PhotosListCacheProtocol
+    let requestFactory: PhotosRequestFactory
 
-    func fetchPhotosNextPage(_ page: Int) async throws -> [Photo] {
-        let request = API.PhotoResult.PhotosNextPageRequest(
-            page: page,
-            authConfiguration: authConfigurationProvider.config
-        )
-
-        do {
-            let response = try await networkService.perform(request)
-
-            // Сохраняем API ответ в кэш (ошибка кэша не прерывает загрузку)
-            try? await photosListCache.setPhotos(response, page: page)
-
-            return response.map { $0.toPhoto() }
-        }
-        catch {
-            // Сеть недоступна — пробуем кэш (ошибка кэша не прерывает загрузку)
-            if let cachedResults = try? await photosListCache.getPhotos(page: page) {
-                return cachedResults.map { $0.toPhoto() }
-            }
-            throw error
-        }
+    func fetchPhotosNextPage(_ page: Int, type: PhotoType) async throws -> [Photo] {
+        let request = try await requestFactory.makeRequest(page: page, type: type)
+        let response = try await networkService.perform(request)
+        return response.map { $0.toPhoto() }
     }
 }

@@ -10,23 +10,16 @@ import ImageListDomain
 import SwiftUI
 
 final class ImageListAssembly {
-    private let imageListManager: ImageListManaging
-    private let factory: ImageListCellViewModelFactory
+    private let imageListViewModelFactory: ImageListViewModelFactoryProtocol
 
-    init(
-        imageListManager: ImageListManaging,
-        factory: ImageListCellViewModelFactory
-    ) {
-        self.imageListManager = imageListManager
-        self.factory = factory
+    init(imageListViewModelFactory: ImageListViewModelFactoryProtocol) {
+        self.imageListViewModelFactory = imageListViewModelFactory
     }
 
     @MainActor
     func assemble(_ context: ViewContext<Void, ImageListOutput>) -> UIViewController {
-        let viewModel = ImageListViewModel(
-            imageListManager: imageListManager,
+        let viewModel = imageListViewModelFactory.makeImageListViewModel(
             imageListType: .all,
-            factory: factory,
             eventsHandler: { context.output($0) }
         )
 

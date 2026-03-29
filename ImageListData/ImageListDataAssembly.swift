@@ -54,17 +54,6 @@ public final class ImageListDataAssembly: Assembly {
         }
         .inObjectScope(.container)
 
-        container.register(PhotosListCacheProtocol.self) { r in
-            PhotosListCache(storage: r.resolve(FileStorageProtocol.self)!)
-        }
-        .inObjectScope(.container)
-
-        container.register(ImageServiceProtocol.self) { r in
-            ImageService(
-                networkService: r.resolve(NetworkClientProtocol.self)!
-            )
-        }
-
         container.register(OAuth2ServiceProtocol.self) { r in
             OAuth2Service(
                 networkService: r.resolve(NetworkClientProtocol.self)!,
@@ -93,20 +82,20 @@ public final class ImageListDataAssembly: Assembly {
             )
         }
 
-        container.register(PhotosListServiceProtocol.self, name: "all") { r in
+        container.register(PhotosRequestFactory.self) { r in
+            PhotosRequestFactoryImpl(
+                profileService: r.resolve(ProfileServiceProtocol.self)!,
+                authConfiguration: r.resolve(AuthConfigurationProviding.self)!.config
+            )
+        }
+        .inObjectScope(.container)
+
+        container.register(PhotosListServiceProtocol.self) { r in
             PhotosListService(
                 networkService: r.resolve(NetworkClientProtocol.self)!,
-                authConfigurationProvider: r.resolve(AuthConfigurationProviding.self)!,
-                photosListCache: r.resolve(PhotosListCacheProtocol.self)!
+                requestFactory: r.resolve(PhotosRequestFactory.self)!
             )
         }
-
-        container.register(PhotosListServiceProtocol.self, name: "favorite") { r in
-            FavoritePhotosListService(
-                networkService: r.resolve(NetworkClientProtocol.self)!,
-                profileService: r.resolve(ProfileServiceProtocol.self)!,
-                authConfigurationProvider: r.resolve(AuthConfigurationProviding.self)!
-            )
-        }
+        .inObjectScope(.container)
     }
 }
