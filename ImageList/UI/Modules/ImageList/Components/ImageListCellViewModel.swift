@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ImageListDomain
 import SwiftUI
 
 struct ImageListCellViewModel: Identifiable {
@@ -15,39 +16,37 @@ struct ImageListCellViewModel: Identifiable {
     let date: Date
     let imageSize: CGSize
     let detailImageURLString: String
-    let image: Image
-    
+    let imageURL: URL
+    let imageLoader: CachedImageLoaderProtocol
+
     var detailImageURL: URL {
         get throws {
             guard let url = URL(string: detailImageURLString) else {
                 throw Errors.badURL
             }
-            
+
             return url
         }
     }
-    
+
     init?(
         imageId: String,
         isLiked: Bool,
         date: Date,
         imageSize: CGSize,
         detailImageURLString: String,
-        imageData: Data
+        imageURL: URL,
+        imageLoader: CachedImageLoaderProtocol
     ) {
         self.imageId = imageId
         self.isLiked = isLiked
         self.date = date
         self.imageSize = imageSize
         self.detailImageURLString = detailImageURLString
-        
-        guard let image = Image(data: imageData) else {
-            return nil
-        }
-        
-        self.image = image
+        self.imageURL = imageURL
+        self.imageLoader = imageLoader
     }
-    
+
     func imageSize(for screenWidth: CGFloat, paddingHorizontal: CGFloat) -> CGSize {
         let insets = EdgeInsets(top: 6, left: paddingHorizontal, right: paddingHorizontal, bottom: 6)
         let imageViewWidth = screenWidth - insets.left - insets.right
@@ -55,7 +54,7 @@ struct ImageListCellViewModel: Identifiable {
         let imageHeight = imageSize.height
         let scale = imageViewWidth / imageWidth
         let height = (imageHeight * scale) + insets.top + insets.bottom
-        
+
         return .init(width: imageViewWidth, height: height)
     }
 }

@@ -10,13 +10,13 @@ import ImageListDomain
 
 extension API {
     enum PhotoResult {
-        struct PhotoResult: Decodable {
+        struct PhotoResult: Codable {
             let id: String
             let createdAt: Date
             let width, height: Int
             let likedByUser: Bool
             let urls: UrlsResult
-            
+
             func toPhoto() -> Photo {
                 Photo(
                     id: id,
@@ -28,12 +28,12 @@ extension API {
             }
         }
 
-        struct UrlsResult: Decodable {
+        struct UrlsResult: Codable {
             let full: String
             let thumb: String
             let regular: String
             let small: String
-            
+
             func toURL() -> Photo.Urls {
                 Photo.Urls(
                     full: full,

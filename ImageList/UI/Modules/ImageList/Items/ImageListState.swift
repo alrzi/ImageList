@@ -12,23 +12,23 @@ enum ImageListState {
     case loading
     case loaded([ImageListCellViewModel])
     case error
-    
+
     var isLoaded: Bool {
         switch self {
         case .loading, .error, .idle: false
         case .loaded: true
         }
     }
-    
+
     var isLoading: Bool {
         switch self {
         case .loading: true
         case .loaded, .error, .idle: false
         }
     }
-    
+
     var lastElementIndex: Int {
-        if case .loaded(let collection) = self {
+        if case let .loaded(collection) = self {
             return collection.count - 1
         }
         else {

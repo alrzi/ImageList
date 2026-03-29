@@ -12,14 +12,14 @@ enum ViewModelState<Info> {
     case loading
     case loaded(Info)
     case error
-    
+
     var isLoaded: Bool {
         switch self {
         case .loading, .error, .idle: false
         case .loaded: true
         }
     }
-    
+
     var isLoading: Bool {
         switch self {
         case .loading: true
@@ -30,7 +30,7 @@ enum ViewModelState<Info> {
 
 extension ViewModelState where Info: Collection {
     var lastElementIndex: Int {
-        if case .loaded(let collection) = self {
+        if case let .loaded(collection) = self {
             return collection.count - 1
         }
         else {

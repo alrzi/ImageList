@@ -12,13 +12,13 @@ struct TabBarCoordinator: Coordinator {
     private let profileAssembly: ProfileAssembly
     private let imageListAssembly: ImageListAssembly
     private let detailImageAssembly: DetailImageAssembly
-    
+
     private let window: UIWindow
     private let imageListNavigationController: UINavigationController
     private let profileNavigationController: UINavigationController
-    
+
     private let onComplete: () -> Void
-    
+
     init(
         profileAssembly: ProfileAssembly,
         imageListAssembly: ImageListAssembly,
@@ -36,19 +36,19 @@ struct TabBarCoordinator: Coordinator {
         self.profileNavigationController = profileNavigationController
         self.onComplete = onComplete
     }
-    
+
     func start() {
         let imagesListViewController = imageListAssembly.assemble(.init { handle(output: $0) })
         let profileViewController = profileAssembly.assemble(.init { handle(output: $0) })
-        
+
         imageListNavigationController.setViewControllers([imagesListViewController], animated: false)
         profileNavigationController.setViewControllers([profileViewController], animated: false)
-        
+
         let tabBarController = TabBarController(
             imagesListNavigationController: imageListNavigationController,
             profileViewController: profileNavigationController
         )
-        
+
         window.rootViewController = tabBarController
     }
 }
@@ -60,7 +60,7 @@ private extension TabBarCoordinator {
         let detailImageViewController = detailImageAssembly.assemble(.init(input: .init(url: url)))
         detailImageViewController.modalPresentationStyle = .overFullScreen
         detailImageViewController.modalTransitionStyle = .crossDissolve
-        
+
         presentationController.present(detailImageViewController, animated: true)
     }
 }
@@ -70,15 +70,15 @@ private extension TabBarCoordinator {
 private extension TabBarCoordinator {
     func handle(output: ImageListOutput) {
         switch output {
-        case .onImageTap(let url): showDetailImage(for: url, presentationController: imageListNavigationController)
+        case let .onImageTap(url): showDetailImage(for: url, presentationController: imageListNavigationController)
         case .onLikeRemoved: break
         }
     }
-    
+
     func handle(output: ProfileOutput) {
         switch output {
         case .onLogOut: onComplete()
-        case .onImageTap(let url): showDetailImage(for: url, presentationController: profileNavigationController)
+        case let .onImageTap(url): showDetailImage(for: url, presentationController: profileNavigationController)
         }
     }
 }

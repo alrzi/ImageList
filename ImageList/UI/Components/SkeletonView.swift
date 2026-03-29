@@ -11,9 +11,10 @@ import SwiftUI
 struct SkeletonView<S: Shape>: View {
     var shape: S
     var color: Color = .gray.opacity(0.3)
-    
+
     @State private var isAnimating = false
-    
+    @State private var hasAppeared = false
+
     var body: some View {
         shape
             .fill(color)
@@ -23,10 +24,10 @@ struct SkeletonView<S: Shape>: View {
                     let skeletonWidth = size.width / 2
                     let blurRadius = max(skeletonWidth / 2, 30)
                     let blurDiameter = blurRadius * 2
-                    
+
                     let minX = -(skeletonWidth + blurDiameter)
                     let maxX = size.width + skeletonWidth + blurDiameter
-                    
+
                     Rectangle()
                         .fill(.gray)
                         .frame(width: skeletonWidth, height: size.height * 2)
@@ -40,16 +41,14 @@ struct SkeletonView<S: Shape>: View {
             .clipShape(shape)
             .compositingGroup()
             .onAppear {
-                guard !isAnimating else {
+                guard !hasAppeared else {
                     return
                 }
-                
+                hasAppeared = true
+
                 withAnimation(animation) {
                     isAnimating = true
                 }
-            }
-            .onDisappear {
-                isAnimating = false
             }
             .transaction {
                 if $0.animation != animation {
@@ -57,14 +56,14 @@ struct SkeletonView<S: Shape>: View {
                 }
             }
     }
-    
+
     private var rotation: Double {
         5
     }
-    
+
     private var animation: Animation {
         .easeInOut(duration: 1.5)
-        .repeatForever(autoreverses: false)
+            .repeatForever(autoreverses: false)
     }
 }
 

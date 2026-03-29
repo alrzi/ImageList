@@ -9,16 +9,16 @@ import UIKit
 
 final class DetailScrollView: UIScrollView {
     private var imageView: UIImageView?
-    
+
     private lazy var zoomingTap: UITapGestureRecognizer = {
         let zoomingTap = UITapGestureRecognizer(target: self, action: #selector(doubleTapAction(_:)))
         zoomingTap.numberOfTapsRequired = 2
         return zoomingTap
     }()
-    
+
     override init(frame: CGRect) {
         super.init(frame: .zero)
-        
+
         delegate = self
         minimumZoomScale = 0.1
         maximumZoomScale = 0.7
@@ -27,11 +27,12 @@ final class DetailScrollView: UIScrollView {
         translatesAutoresizingMaskIntoConstraints = false
         contentInsetAdjustmentBehavior = .never
     }
-    
+
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("Unsupported")
     }
-    
+
     @objc
     func doubleTapAction(_ recognizer: UITapGestureRecognizer) {
         let point = recognizer.location(in: recognizer.view)
@@ -44,7 +45,7 @@ final class DetailScrollView: UIScrollView {
 extension DetailScrollView {
     func setImageView(_ imageView: UIImageView) {
         self.imageView = imageView
-        
+
         addSubview(imageView)
         self.imageView?.addGestureRecognizer(zoomingTap)
         self.imageView?.isUserInteractionEnabled = true
@@ -84,23 +85,24 @@ extension DetailScrollView {
 
         self.setZoomScale(finalScale, animated: false)
     }
-    
+
     func centerImage() {
         let newContentsSize = self.contentSize
         let visibleRectSize = self.bounds.size
         let x = (newContentsSize.width - visibleRectSize.width) / 2
         let y = (newContentsSize.height - visibleRectSize.height) / 2
-        
+
         self.setContentOffset(CGPoint(x: x, y: y), animated: false)
     }
 }
 
 // MARK: - UIScrollViewDelegate
+
 extension DetailScrollView: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         imageView
     }
-    
+
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
         centerImageAfterZooming()
     }

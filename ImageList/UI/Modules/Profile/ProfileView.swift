@@ -6,11 +6,12 @@
 //
 
 import SwiftUI
+import ImageListDomain
 
 @MainActor
 struct ProfileView<ViewModel: ProfileViewModelProtocol> {
     @ObservedObject private var viewModel: ViewModel
-    
+
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
@@ -22,25 +23,26 @@ extension ProfileView: View {
             switch viewModel.state {
             case .loading, .idle:
                 AppProgressView()
-                
-            case .loaded(let model):
+
+            case let .loaded(model):
                 VStack {
                     ProfileTopView(
                         profileModel: model,
-                        onLogOut: viewModel.onLogOut
+                        onLogOut: viewModel.onLogOut,
+                        imageLoader: viewModel.imageLoader
                     )
                     .padding(.horizontal, 16)
-                    
+
                     Spacer(minLength: 0)
-                    
+
                     if let viewModel = viewModel.imageListViewModel {
                         ImageListView(viewModel: viewModel)
                             .padding(.vertical, 8)
-                        
+
                         Spacer(minLength: 0)
                     }
                 }
-                
+
             case .error:
                 ErrorView(onRetry: viewModel.onRetry)
             }
@@ -54,8 +56,8 @@ extension ProfileView: View {
                 Button(error.confirmationButtonText, role: .destructive) {
                     error.onConfirm()
                 }
-               
-                Button(error.cancelButtonText, role: .cancel) { }
+
+                Button(error.cancelButtonText, role: .cancel) {}
             },
             message: { error in
                 Text(error.message)
@@ -66,7 +68,7 @@ extension ProfileView: View {
             isPresented: $viewModel.isAccountAccuracyErrorPresented,
             presenting: viewModel.accountAccuracyError,
             actions: { error in
-                Button(action: { }) {
+                Button(action: {}) {
                     Text(error.confirmationButtonText)
                 }
             },
@@ -82,29 +84,21 @@ extension ProfileView: View {
 private struct ProfileTopView: View {
     let profileModel: ProfileModel
     let onLogOut: () -> Void
-    
+    let imageLoader: CachedImageLoaderProtocol
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 0) {
-                if let image = profileModel.image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 70, height: 70)
-                        .clipShape(.circle)
-                }
-                else {
-                    Image(systemName: "person")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 70, height: 70)
-                        .symbolVariant(.circle.fill)
-                        .symbolRenderingMode(.palette)
-                        .foregroundStyle(.white, .gray)
-                }
-                
+                CachedImageView(
+                    url: profileModel.avatarURL,
+                    imageLoader: imageLoader,
+                    placeholder: Image(systemName: "person")
+                )
+                .frame(width: 70, height: 70)
+                .clipShape(.circle)
+
                 Spacer()
-                
+
                 Button(action: onLogOut) {
                     Image(systemName: "rectangle.portrait.and.arrow.forward")
                         .resizable()
@@ -116,35 +110,35 @@ private struct ProfileTopView: View {
                         .padding(.trailing, 8)
                 }
             }
-            
+
             VStack(alignment: .leading, spacing: 8) {
                 Text(profileModel.name)
                     .font(.system(size: 23, weight: .bold))
                     .foregroundStyle(.white)
-                
+
                 Text(profileModel.email)
                     .font(.system(size: 13, weight: .regular))
                     .foregroundStyle(.gray)
-                
+
                 Text(profileModel.greeting)
                     .font(.system(size: 13, weight: .regular))
                     .foregroundStyle(.white)
             }
             .padding(.bottom, 12)
-                        
+
             FavoriteView(likesNumber: profileModel.totalLikes.formatted())
         }
     }
-    
+
     struct FavoriteView: View {
         let likesNumber: String
-        
+
         var body: some View {
             HStack {
                 Text("Избранное")
                     .font(.system(size: 23, weight: .bold))
                     .foregroundStyle(.white)
-                
+
                 Text(likesNumber)
                     .font(.system(size: 13))
                     .foregroundStyle(.white)
@@ -157,47 +151,56 @@ private struct ProfileTopView: View {
 }
 
 #if DEBUG
-#Preview("Error") {
-    ProfileView(viewModel: ViewModel(state: .error))
-}
+    #Preview("Error") {
+        ProfileView(viewModel: ViewModel(state: .error))
+    }
 
-#Preview("Loading") {
-    ProfileView(viewModel: ViewModel(state: .loading))
-}
+    #Preview("Loading") {
+        ProfileView(viewModel: ViewModel(state: .loading))
+    }
 
-#Preview("Loaded") {
-    ProfileView(
-        viewModel: ViewModel(
-            state: .loaded(
-                ProfileModel(
-                    name: "Aleks",
-                    email: "@gmail.com",
-                    greeting: "Hello",
-                    totalLikes: 20,
-                    imageData: .empty
+    #Preview("Loaded") {
+        ProfileView(
+            viewModel: ViewModel(
+                state: .loaded(
+                    ProfileModel(
+                        name: "Aleks",
+                        email: "@gmail.com",
+                        greeting: "Hello",
+                        totalLikes: 20,
+                        avatarURL: URL(string: "https://example.com/avatar.jpg")
+                    )
                 )
             )
         )
-    )
-}
-
-private final class ViewModel: ProfileViewModelProtocol {
-    let state: ViewModelState<ProfileModel>
-    let logOutConfirmationError: ErrorInfo? = nil
-    let accountAccuracyError: ErrorInfo? = nil
-    
-    let imageListViewModel: ImageListViewModel? = ImageListViewModel(imageListManager: DebugImageListManager(), imageListType: .onlyFavorite) { _ in }
-    
-    var isLogOutConfirmationErrorPresented = false
-    var isAccountAccuracyErrorPresented = false
-    
-    init(state: ViewModelState<ProfileModel>) {
-        self.state = state
     }
-    
-    func onAppear() { }
-    func onRetry() { }
-    func onLogOut() { }
-    func onConfirmLogOut() { }
-}
+
+    private final class ViewModel: ProfileViewModelProtocol {
+        let state: ViewModelState<ProfileModel>
+        let logOutConfirmationError: ErrorInfo? = nil
+        let accountAccuracyError: ErrorInfo? = nil
+
+        let imageListViewModel: ImageListViewModel? = {
+            let factory = ImageListCellViewModelFactory(imageLoader: DebugCachedImageLoader())
+            return ImageListViewModel(
+                imageListManager: DebugImageListManager(),
+                imageListType: .onlyFavorite,
+                factory: factory
+            ) { _ in }
+        }()
+
+        let imageLoader: CachedImageLoaderProtocol = DebugCachedImageLoader()
+
+        var isLogOutConfirmationErrorPresented = false
+        var isAccountAccuracyErrorPresented = false
+
+        init(state: ViewModelState<ProfileModel>) {
+            self.state = state
+        }
+
+        func onAppear() {}
+        func onRetry() {}
+        func onLogOut() {}
+        func onConfirmLogOut() {}
+    }
 #endif

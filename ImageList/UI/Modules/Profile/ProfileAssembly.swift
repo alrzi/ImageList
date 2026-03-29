@@ -5,10 +5,10 @@
 //  Created by Александр Зиновьев on 23.02.2025.
 //
 
-import SwiftUI
 import Foundation
 import ImageListDomain
 import NetworkServiceDomain
+import SwiftUI
 
 final class ProfileAssembly {
     private let favoriteImageListManager: ImageListManaging
@@ -17,14 +17,18 @@ final class ProfileAssembly {
     private let userSession: UserSessionProtocol
     private let webViewCleaner: WebViewCookieDataCleanerProtocol
     private let imageService: ImageServiceProtocol
-    
+    private let factory: ImageListCellViewModelFactory
+    private let imageLoader: CachedImageLoaderProtocol
+
     init(
         favoriteImageListManager: ImageListManaging,
         profileImageURLService: ProfileImageURLServiceProtocol,
         profileService: ProfileServiceProtocol,
         userSession: UserSessionProtocol,
         webViewCleaner: WebViewCookieDataCleanerProtocol,
-        imageService: ImageServiceProtocol
+        imageService: ImageServiceProtocol,
+        factory: ImageListCellViewModelFactory,
+        imageLoader: CachedImageLoaderProtocol
     ) {
         self.favoriteImageListManager = favoriteImageListManager
         self.profileImageURLService = profileImageURLService
@@ -32,10 +36,12 @@ final class ProfileAssembly {
         self.userSession = userSession
         self.webViewCleaner = webViewCleaner
         self.imageService = imageService
+        self.factory = factory
+        self.imageLoader = imageLoader
     }
-    
+
     @MainActor
-    func assemble(_ context: ViewContext<(), ProfileOutput>) -> UIViewController {
+    func assemble(_ context: ViewContext<Void, ProfileOutput>) -> UIViewController {
         let viewModel = ProfileViewModel(
             profileImageURLService: profileImageURLService,
             profileService: profileService,
@@ -43,11 +49,13 @@ final class ProfileAssembly {
             webViewCleaner: webViewCleaner,
             imageService: imageService,
             favoriteImageListManager: favoriteImageListManager,
+            factory: factory,
+            imageLoader: imageLoader,
             eventsHandler: { context.output($0) }
         )
-        
+
         let view = ProfileView(viewModel: viewModel)
-        let viewController = UIHostingController(rootView: view)
-        return viewController
+
+        return UIHostingController(rootView: view)
     }
 }

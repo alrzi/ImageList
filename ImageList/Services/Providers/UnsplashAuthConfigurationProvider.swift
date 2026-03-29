@@ -33,14 +33,14 @@ private extension UnsplashAuthConfiguration {
             defaultBaseHost: "https://api.unsplash.com",
             oAuthHost: "https://unsplash.com"
         )
-        
+
         #if DEBUG
-        precondition(
-            config.isValid,
-            "❌ UnsplashAuthConfiguration: не заполнены поля: \(config.missingFields.joined(separator: ", "))"
-        )
+            precondition(
+                config.isValid,
+                "❌ UnsplashAuthConfiguration: не заполнены поля: \(config.missingFields.joined(separator: ", "))"
+            )
         #endif
-        
+
         return config
     }
 

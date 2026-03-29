@@ -6,47 +6,42 @@
 //
 
 import Foundation
+import ImageListDomain
 import UIKit
-import Kingfisher
 
 @MainActor
 protocol DetailImageListPresenterProtocol {
     var view: DetailImageListViewControllerProtocol? { get }
-    
+
     func fetchImage()
 }
 
-private enum DetailImageState {
-    case loading
-    case error(URL)
-    case finished(UIImage)
-}
-
-@MainActor
-final class DetailImageListPresenter {
+final class DetailImageListPresenter: DetailImageListPresenterProtocol {
     weak var view: DetailImageListViewControllerProtocol?
     let url: URL
-    
+    private let imageLoader: CachedImageLoaderProtocol
+
     private var imageState: DetailImageState = .loading {
         didSet {
             configureImageState()
         }
     }
-    
-    init(url: URL) {
+
+    init(url: URL, imageLoader: CachedImageLoaderProtocol) {
         self.url = url
+        self.imageLoader = imageLoader
     }
 
     private func configureImageState() {
         switch imageState {
         case .loading:
             view?.startSpinner()
-        
-        case .error(let url):
+
+        case let .error(url):
             view?.stopSpinner()
             view?.showAlertAndMaybeTryAgainWith(url: url)
-        
-        case .finished(let image):
+
+        case let .finished(image):
             view?.hideScribble()
             view?.stopSpinner()
             view?.didReceiveImage(image)
@@ -54,24 +49,31 @@ final class DetailImageListPresenter {
     }
 }
 
-extension DetailImageListPresenter: DetailImageListPresenterProtocol {
+extension DetailImageListPresenter {
     func fetchImage() {
         imageState = .loading
-        
-        KingfisherManager.shared.retrieveImage(with: url) { [weak self] result in
-            Task { @MainActor in
-                self?.updateState(result: result)
+
+        Task {
+            do {
+                let data = try await imageLoader.loadImage(from: url)
+                try Task.checkCancellation()
+
+                if let image = UIImage(data: data) {
+                    imageState = .finished(image)
+                }
+                else {
+                    imageState = .error(url)
+                }
+            }
+            catch {
+                imageState = .error(url)
             }
         }
     }
+}
 
-    func updateState(result: Result<RetrieveImageResult, KingfisherError>) {
-        switch result {
-        case .success(let result):
-            imageState = .finished(result.image)
-
-        case .failure:
-            imageState = .error(url)
-        }
-    }
+private enum DetailImageState {
+    case loading
+    case error(URL)
+    case finished(UIImage)
 }

@@ -6,9 +6,9 @@
 //
 
 import Foundation
-import Swinject
 import ImageListDomain
 import NetworkServiceDomain
+import Swinject
 
 final class ModulesAssembly: Assembly {
     func assemble(container: Container) {
@@ -17,14 +17,14 @@ final class ModulesAssembly: Assembly {
                 authConfigurationProvider: r.resolve(UnsplashAuthConfigurationProvider.self)!
             )
         }
-        
+
         container.register(AuthAssembly.self) { r in
             AuthAssembly(
                 userSession: r.resolve(UserSessionProtocol.self)!,
                 oAuth2Service: r.resolve(OAuth2ServiceProtocol.self)!
             )
         }
-        
+
         container.register(ProfileAssembly.self) { r in
             ProfileAssembly(
                 favoriteImageListManager: r.resolve(ImageListManaging.self, name: "favorite")!,
@@ -32,18 +32,23 @@ final class ModulesAssembly: Assembly {
                 profileService: r.resolve(ProfileServiceProtocol.self)!,
                 userSession: r.resolve(UserSessionProtocol.self)!,
                 webViewCleaner: r.resolve(WebViewCookieDataCleanerProtocol.self)!,
-                imageService: r.resolve(ImageServiceProtocol.self)!
+                imageService: r.resolve(ImageServiceProtocol.self)!,
+                factory: r.resolve(ImageListCellViewModelFactory.self)!,
+                imageLoader: r.resolve(CachedImageLoaderProtocol.self)!
             )
         }
-        
+
         container.register(ImageListAssembly.self) { r in
             ImageListAssembly(
-                imageListManager: r.resolve(ImageListManaging.self, name: "all")!
+                imageListManager: r.resolve(ImageListManaging.self, name: "all")!,
+                factory: r.resolve(ImageListCellViewModelFactory.self)!
             )
         }
-        
-        container.register(DetailImageAssembly.self) { _ in
-            DetailImageAssembly()
+
+        container.register(DetailImageAssembly.self) { r in
+            DetailImageAssembly(
+                imageLoader: r.resolve(CachedImageLoaderProtocol.self)!
+            )
         }
     }
 }

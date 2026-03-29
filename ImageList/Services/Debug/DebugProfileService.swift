@@ -9,16 +9,16 @@ import Foundation
 import ImageListDomain
 
 #if DEBUG
-struct DebugProfileService: ProfileServiceProtocol {
-    func fetchProfile() async throws -> Profile {
-        Profile(
-            username: "username",
-            firstName: "firstName",
-            lastName: "lastName",
-            loginName: "@" + "username",
-            totalLikes: 40,
-            bio: ""
-        )
+    struct DebugProfileService: ProfileServiceProtocol {
+        func fetchProfile() async throws -> Profile {
+            Profile(
+                username: "username",
+                firstName: "firstName",
+                lastName: "lastName",
+                loginName: "@" + "username",
+                totalLikes: 40,
+                bio: ""
+            )
+        }
     }
-}
 #endif

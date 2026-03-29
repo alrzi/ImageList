@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ViewContext<InputType: Sendable, OutputType: Sendable>: Sendable {
+struct ViewContext<InputType: Sendable, OutputType: Sendable> {
     let input: InputType
     let output: @MainActor @Sendable (OutputType) -> Void
 }
@@ -27,7 +27,7 @@ extension ViewContext where OutputType == Void {
 }
 
 extension ViewContext where OutputType == Void, InputType == Void {
-    init () {
+    init() {
         self.input = ()
         self.output = { _ in }
     }

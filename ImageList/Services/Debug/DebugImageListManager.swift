@@ -6,65 +6,62 @@
 //
 
 #if DEBUG
-import Foundation
-import UIKit
-import ImageListDomain
+    import Foundation
+    import ImageListDomain
+    import UIKit
 
-struct DebugImageListManager: ImageListManaging {
-    typealias ReturnType = (Photo, imageData: Data)
-    
-    func fetchPhotosNextPage(_ page: Int) async throws -> [ReturnType] {
-        var mockItems: [ReturnType] = []
+    struct DebugImageListManager: ImageListManaging {
+        func fetchPhotosNextPage(_ page: Int) async throws -> [Photo] {
+            var mockItems: [Photo] = []
 
-        let itemsPerPage = 8
+            let itemsPerPage = 8
 
-        let startIndex = (page - 1) * itemsPerPage + 1
-        let endIndex = startIndex + itemsPerPage - 1
+            let startIndex = (page - 1) * itemsPerPage + 1
+            let endIndex = startIndex + itemsPerPage - 1
 
-        for index in startIndex...endIndex {
-            guard let uiImage = UIImage(named: "\(index)") else {
-                continue
+            for index in startIndex...endIndex {
+                guard let uiImage = UIImage(named: "\(index)") else {
+                    continue
+                }
+
+                let photo = Photo(
+                    id: UUID().uuidString,
+                    size: uiImage.size,
+                    createdAt: .now,
+                    urls: .init(
+                        full: "",
+                        thumb: "",
+                        regular: "",
+                        small: "https://picsum.photos/200/300?random=\(index)"
+                    ),
+                    isLiked: Bool.random()
+                )
+
+                mockItems.append(photo)
             }
 
-            guard let imageData = uiImage.pngData() else {
-                continue
+            if page >= 2 {
+                throw Errors.failed
             }
+            else {
+                do {
+                    try await Task.sleep(nanoseconds: 4_000_000_000)
+                }
+                catch {
+                    debugPrint(error)
+                }
 
-            let photo = Photo(
-                id: UUID().uuidString,
-                size: uiImage.size,
-                createdAt: .now,
-                urls: .init(full: "", thumb: "", regular: "", small: ""),
-                isLiked: Bool.random()
-            )
-
-            mockItems.append((photo, imageData))
+                return mockItems.shuffled()
+            }
         }
 
-        if page >= 2 {
+        func changeLike(photoId: String, isLiked: Bool) async throws -> Bool {
+            try await Task.sleep(nanoseconds: 1_000_000_000)
             throw Errors.failed
         }
-        else {
-            do {
-                try await Task.sleep(nanoseconds: 4_000_000_000)
-            }
-            catch {
-                debugPrint(error)
-            }
-
-            return mockItems.shuffled()
-//            return []
-        }
     }
-    
-    func changeLike(photoId: String, isLiked: Bool) async throws -> Bool {
-        try await Task.sleep(nanoseconds: 1_000_000_000)
-        throw Errors.failed
-//        return isLiked
-    }
-}
 
-private enum Errors: Error {
-    case failed
-}
+    private enum Errors: Error {
+        case failed
+    }
 #endif

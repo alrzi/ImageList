@@ -5,21 +5,25 @@
 //  Created by Александр Зиновьев on 25.12.2022.
 //
 
-import UIKit
-import Swinject
-import ImageListDomain
 import ImageListData
+import ImageListDomain
 import NetworkServiceDomain
+import Swinject
+import UIKit
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     private var coordinator: Coordinator?
 
-    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+    func scene(
+        _ scene: UIScene,
+        willConnectTo session: UISceneSession,
+        options connectionOptions: UIScene.ConnectionOptions
+    ) {
         guard let windowScene = (scene as? UIWindowScene) else {
             return
         }
-        
+
         // DI container
         let assembler = Assembler()
         assembler.apply(
@@ -27,15 +31,16 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 ImageListDataAssembly(),
                 ImageListDomainAssembly(),
                 ServicesAssembly(),
-                ModulesAssembly()
+                FactoriesAssembly(),
+                ModulesAssembly(),
             ]
         )
 
         let resolver = assembler.resolver
-        
+
         // coordinator
         let window = UIWindow(windowScene: windowScene)
-        
+
         coordinator = LoginCoordinator(
             userSession: resolver.resolve(UserSessionProtocol.self)!,
             webViewAssembly: resolver.resolve(WebViewAssembly.self)!,
@@ -46,9 +51,9 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             window: window,
             navigationController: .createController(isNavBarHidden: false)
         )
-               
+
         coordinator?.start()
-                
+
         window.rootViewController = window.rootViewController
         window.makeKeyAndVisible()
         self.window = window
@@ -58,7 +63,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Called as the scene is being released by the system.
         // This occurs shortly after the scene enters the background, or when its session is discarded.
         // Release any resources associated with this scene that can be re-created the next time the scene connects.
-        // The scene may re-connect later, as its session was not necessarily discarded (see `application:didDiscardSceneSessions` instead).
+        // The scene may re-connect later, as its session was not necessarily discarded (see
+        // `application:didDiscardSceneSessions` instead).
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {

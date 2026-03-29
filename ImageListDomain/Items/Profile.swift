@@ -1,5 +1,5 @@
 //
-//  UserProfile.swift
+//  Profile.swift
 //  ImageList
 //
 //  Created by Александр Зиновьев on 07.02.2023.
@@ -12,9 +12,11 @@ public struct Profile: Sendable {
     public let loginName: String
     public let totalLikes: Int
     public let bio: String
-    
-    public var fullName: String { "\(firstName) \(lastName)" }
-    
+
+    public var fullName: String {
+        "\(firstName) \(lastName)"
+    }
+
     public init(
         username: String,
         firstName: String,

@@ -16,7 +16,7 @@ struct WebViewAuthHelper {
         else {
             return nil
         }
-        
+
         return codeItem.value
     }
 }

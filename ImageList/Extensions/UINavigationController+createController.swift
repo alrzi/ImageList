@@ -12,12 +12,12 @@ extension UINavigationController {
     static func createController(isNavBarHidden: Bool) -> UINavigationController {
         let navigationController = UINavigationController()
         navigationController.setNavigationBarHidden(isNavBarHidden, animated: false)
-        
+
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
         navigationController.navigationBar.standardAppearance = appearance
         navigationController.navigationBar.scrollEdgeAppearance = appearance
-        
+
         return navigationController
     }
 }

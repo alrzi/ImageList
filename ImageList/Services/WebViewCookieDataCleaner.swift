@@ -14,7 +14,7 @@ protocol WebViewCookieDataCleanerProtocol {
 
 struct WebViewCookieDataCleaner: WebViewCookieDataCleanerProtocol {
     let cookieStorage: HTTPCookieStorage = .shared
-    
+
     func clean(for domain: String) async {
         let dataStore: WKWebsiteDataStore = .default()
 
@@ -23,9 +23,9 @@ struct WebViewCookieDataCleaner: WebViewCookieDataCleanerProtocol {
                 cookieStorage.deleteCookie(cookie)
             }
         }
-              
+
         let records = await dataStore.dataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes())
-        
+
         for record in records where record.displayName.contains(domain) {
             await dataStore.removeData(ofTypes: record.dataTypes, for: [record])
         }

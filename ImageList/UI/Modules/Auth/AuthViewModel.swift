@@ -11,8 +11,8 @@ import NetworkServiceDomain
 
 @MainActor
 protocol AuthViewModelProtocol: ObservableObject {
-    var state: ViewModelState<()> { get }
-    
+    var state: ViewModelState<Void> { get }
+
     func onAppear()
     func onNext()
     func onRetry()
@@ -22,14 +22,14 @@ final class AuthViewModel: AuthViewModelProtocol {
     private let userSession: any UserSessionProtocol
     private let oAuth2Service: OAuth2ServiceProtocol
     private let code: String?
-    
+
     private let next: (AuthViewOutput) -> Void
-    
-    @Published private(set) var state: ViewModelState<()> = .loaded(())
-        
+
+    @Published private(set) var state: ViewModelState<Void> = .loaded(())
+
     init(
         userSession: some UserSessionProtocol,
-        oAuth2Service: some  OAuth2ServiceProtocol,
+        oAuth2Service: some OAuth2ServiceProtocol,
         code: String?,
         next: @escaping (AuthViewOutput) -> Void
     ) {
@@ -38,17 +38,17 @@ final class AuthViewModel: AuthViewModelProtocol {
         self.code = code
         self.next = next
     }
-    
+
     func onAppear() {
         Task {
             await fetchTokenIfNeeded()
         }
     }
-    
+
     func onNext() {
         next(.onAuthenticate)
     }
-    
+
     func onRetry() {
         Task {
             await fetchTokenIfNeeded()
@@ -63,20 +63,24 @@ private extension AuthViewModel {
         guard let code else {
             return
         }
-        
+
         guard !state.isLoading else {
             return
         }
-        
+
         state = .loading
-       
+
         do {
             let token = try await oAuth2Service.fetchOAuthToken(withCode: code)
-            
-            await userSession.setSession(token: AuthToken(accessToken: token, refreshToken: nil, expirationTimestamp: nil))
-            
+
+            await userSession.setSession(token: AuthToken(
+                accessToken: token,
+                refreshToken: nil,
+                expirationTimestamp: nil
+            ))
+
             state = .loaded(())
-            
+
             next(.onAuthenticated(token: token))
         }
         catch {

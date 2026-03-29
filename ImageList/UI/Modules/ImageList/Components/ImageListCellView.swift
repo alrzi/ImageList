@@ -11,16 +11,19 @@ import SwiftUI
 struct ImageListCellView: View {
     let model: ImageListCellViewModel
     let onLikeTap: () -> Void
-    
+
     var body: some View {
-        model.image
-            .resizable()
+        CachedImageView(
+            url: model.imageURL,
+            imageLoader: model.imageLoader,
+            placeholder: Image(systemName: "photo")
+        )
             .overlay(alignment: .bottom) {
                 HStack {
                     Text(model.date.formatted(date: .long, time: .omitted))
                         .font(.system(size: 13))
                         .foregroundStyle(.white)
-                    
+
                     Spacer()
                 }
                 .padding([.horizontal, .bottom], 8)
@@ -29,7 +32,7 @@ struct ImageListCellView: View {
                     LinearGradient(
                         colors: [
                             Color(.myGradientStart),
-                            Color(.myGradientStop)
+                            Color(.myGradientStop),
                         ],
                         startPoint: .top,
                         endPoint: .bottom
@@ -47,7 +50,7 @@ struct ImageListCellView: View {
 private struct LikeButton: View {
     let isLiked: Bool
     let onTap: () -> Void
-    
+
     var body: some View {
         Button(action: onTap) {
             if isLiked {
@@ -73,16 +76,15 @@ private struct LikeButton: View {
 }
 
 #Preview {
-    let model = ImageListCellViewModel(
+    if let model = ImageListCellViewModel(
         imageId: "1",
         isLiked: true,
         date: .now,
         imageSize: .zero,
         detailImageURLString: "",
-        imageData: .empty
-    )
-    
-    if let model {
-        ImageListCellView(model: model, onLikeTap: { })
+        imageURL: URL(string: "https://example.com/image.jpg")!,
+        imageLoader: DebugCachedImageLoader()
+    ) {
+        ImageListCellView(model: model, onLikeTap: {})
     }
 }

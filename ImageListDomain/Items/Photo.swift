@@ -1,5 +1,5 @@
 //
-//  Photos.swift
+//  Photo.swift
 //  ImageList
 //
 //  Created by Александр Зиновьев on 18.02.2023.
@@ -13,17 +13,17 @@ public struct Photo: Sendable {
     public let createdAt: Date
     public let urls: Urls
     public var isLiked: Bool
-    
+
     public var imageURL: URL {
         get throws {
             guard let url = URL(string: urls.small) else {
                 throw Errors.badURL
             }
-            
+
             return url
         }
     }
-    
+
     public init(
         id: String,
         size: CGSize,
@@ -45,7 +45,7 @@ public extension Photo {
         public let thumb: String
         public let regular: String
         public let small: String
-        
+
         public init(
             full: String,
             thumb: String,

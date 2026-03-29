@@ -5,14 +5,14 @@
 //  Created by Александр Зиновьев on 05.03.2023.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 @MainActor
 protocol WebViewModelProtocol: AnyObject {
     var request: URLRequest? { get }
     var webViewProgress: WebViewProgress { get }
-    
+
     func onProgressValueUpdated(_ newValue: Double)
     func onBackButton()
     func isURLValid(_ url: URL) -> Bool
@@ -21,10 +21,10 @@ protocol WebViewModelProtocol: AnyObject {
 final class WebViewModel: WebViewModelProtocol {
     private let authHelper: WebViewAuthHelper
     private let onComplete: (WebViewOutput) -> Void
-    
+
     @Published private(set) var request: URLRequest?
     @Published private(set) var webViewProgress: WebViewProgress = .idle
-    
+
     init(
         authHelper: WebViewAuthHelper = .init(),
         authConfigurationProvider: UnsplashAuthConfigurationProvider,
@@ -32,7 +32,7 @@ final class WebViewModel: WebViewModelProtocol {
     ) {
         self.authHelper = authHelper
         self.onComplete = onComplete
-                        
+
         do {
             request = try API.AuthRequest(authConfiguration: authConfigurationProvider.config).asURLRequest()
         }
@@ -40,19 +40,19 @@ final class WebViewModel: WebViewModelProtocol {
             debugPrint(error)
         }
     }
-    
+
     func onProgressValueUpdated(_ newValue: Double) {
         webViewProgress = shouldHideProgress(for: newValue) ? .idle : .onGoing(Float(newValue))
     }
-    
+
     func onBackButton() {
         onComplete(.init(code: nil))
     }
-    
+
     func isURLValid(_ url: URL) -> Bool {
         if let code = authHelper.code(from: url) {
             onComplete(.init(code: code))
-            
+
             return true
         }
         else {

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum ProfileOutput: Sendable {
+enum ProfileOutput {
     case onLogOut
     case onImageTap(URL)
 }

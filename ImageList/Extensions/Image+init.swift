@@ -6,15 +6,15 @@
 //
 
 import Foundation
-import UIKit
 import SwiftUI
+import UIKit
 
 extension Image {
     init?(data: Data) {
         guard let image = UIImage(data: data) else {
             return nil
         }
-        
+
         self = .init(uiImage: image)
     }
 }

@@ -6,18 +6,18 @@
 //
 
 import Foundation
-import UIKit
 import ImageListDomain
 import NetworkServiceDomain
+import UIKit
 
 final class LoginCoordinator: Coordinator {
     private let userSession: UserSessionProtocol
-    
+
     private let webViewAssembly: WebViewAssembly
     private let authAssembly: AuthAssembly
-    
+
     private var tabBarCoordinator: TabBarCoordinator?
-    
+
     private let window: UIWindow
     private let navigationController: UINavigationController
 
@@ -47,13 +47,13 @@ final class LoginCoordinator: Coordinator {
             onComplete: { [weak self] in self?.start() }
         )
     }
-    
+
     func start() {
         Task {
             let status = await userSession.currentStatus
 
             switch status {
-            case .initial, .unauthenticated:
+            case .unauthenticated:
                 showAuthView()
 
             case .authenticated:
@@ -67,19 +67,20 @@ final class LoginCoordinator: Coordinator {
 
 private extension LoginCoordinator {
     func showAuthView(code: String? = nil) {
-        let viewController = authAssembly.assemble(.init(input: .init(code: code)) { [weak self] in self?.handle(output: $0) })
-                
+        let viewController = authAssembly
+            .assemble(.init(input: .init(code: code)) { [weak self] in self?.handle(output: $0) })
+
         navigationController.setViewControllers([viewController], animated: true)
-        
+
         window.rootViewController = navigationController
     }
-    
+
     func showWebView() {
         let viewController = webViewAssembly.assemble(.init { [weak self] in self?.handle(output: $0) })
-        
+
         navigationController.pushViewController(viewController, animated: true)
     }
-    
+
     func showHome() {
         tabBarCoordinator?.start()
     }
@@ -94,7 +95,7 @@ private extension LoginCoordinator {
         case .onAuthenticate: showWebView()
         }
     }
-    
+
     func handle(output: WebViewOutput) {
         showAuthView(code: output.code)
     }

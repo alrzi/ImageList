@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		294A1D192F76E121009389B6 /* NetworkService in Frameworks */ = {isa = PBXBuildFile; productRef = 294A1D182F76E121009389B6 /* NetworkService */; };
 		296155582EC7910900D035DC /* NetworkService in Frameworks */ = {isa = PBXBuildFile; productRef = 296155572EC7910900D035DC /* NetworkService */; };
 		296819C72F75993B00823A3A /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 296819C62F75993B00823A3A /* Kingfisher */; };
 		29681DEE2F759D8500823A3A /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 29681DED2F759D8500823A3A /* Swinject */; };
@@ -14,6 +15,7 @@
 		29681DF32F759D9100823A3A /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 29681DF22F759D9100823A3A /* Swinject */; };
 		2998DDB72F7581A30057B2AD /* NetworkService in Frameworks */ = {isa = PBXBuildFile; productRef = 2998DDB62F7581A30057B2AD /* NetworkService */; };
 		2998DDB92F7581A30057B2AD /* NetworkServiceDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 2998DDB82F7581A30057B2AD /* NetworkServiceDomain */; };
+		29BE8B572F7824BD00894C93 /* HybridCache in Frameworks */ = {isa = PBXBuildFile; productRef = 29BE8B562F7824BD00894C93 /* HybridCache */; };
 		F93FC47D2D788E37006FF4F4 /* ImageListDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F93FC4772D788E37006FF4F4 /* ImageListDomain.framework */; };
 		F93FC47E2D788E37006FF4F4 /* ImageListDomain.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F93FC4772D788E37006FF4F4 /* ImageListDomain.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F93FE8B12D789BFF006FF4F4 /* ImageListData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F93FE8A92D789BFF006FF4F4 /* ImageListData.framework */; };
@@ -150,6 +152,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F99266322D78D51700CD4255 /* ImageListDomain.framework in Frameworks */,
+				29BE8B572F7824BD00894C93 /* HybridCache in Frameworks */,
+				294A1D192F76E121009389B6 /* NetworkService in Frameworks */,
 				2998DDB92F7581A30057B2AD /* NetworkServiceDomain in Frameworks */,
 				2998DDB72F7581A30057B2AD /* NetworkService in Frameworks */,
 				F93FE8CD2D789C38006FF4F4 /* NetworkService in Frameworks */,
@@ -310,6 +314,8 @@
 				2998DDB62F7581A30057B2AD /* NetworkService */,
 				2998DDB82F7581A30057B2AD /* NetworkServiceDomain */,
 				29681DF22F759D9100823A3A /* Swinject */,
+				294A1D182F76E121009389B6 /* NetworkService */,
+				29BE8B562F7824BD00894C93 /* HybridCache */,
 			);
 			productName = ImageListData;
 			productReference = F93FE8A92D789BFF006FF4F4 /* ImageListData.framework */;
@@ -429,9 +435,10 @@
 			mainGroup = F9843EE2295847EA00EB2CF4;
 			packageReferences = (
 				F9A75E462D745CFF00B7620F /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
-				2998DDB52F7581A30057B2AD /* XCLocalSwiftPackageReference "../../MyPackages/NetworkService" */,
 				296819C52F75993B00823A3A /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				29681DEC2F759D8500823A3A /* XCRemoteSwiftPackageReference "Swinject" */,
+				294A1D172F76E121009389B6 /* XCRemoteSwiftPackageReference "NetworkService" */,
+				29BE8B552F7824BD00894C93 /* XCRemoteSwiftPackageReference "HybridCache" */,
 			);
 			productRefGroup = F9843EEC295847EA00EB2CF4 /* Products */;
 			projectDirPath = "";
@@ -1121,14 +1128,15 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		2998DDB52F7581A30057B2AD /* XCLocalSwiftPackageReference "../../MyPackages/NetworkService" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../MyPackages/NetworkService;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
+		294A1D172F76E121009389B6 /* XCRemoteSwiftPackageReference "NetworkService" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/alrzi/NetworkService.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		296819C52F75993B00823A3A /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -1145,6 +1153,14 @@
 				minimumVersion = 2.10.0;
 			};
 		};
+		29BE8B552F7824BD00894C93 /* XCRemoteSwiftPackageReference "HybridCache" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/alrzi/HybridCache.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		F9A75E462D745CFF00B7620F /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
@@ -1156,6 +1172,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		294A1D182F76E121009389B6 /* NetworkService */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 294A1D172F76E121009389B6 /* XCRemoteSwiftPackageReference "NetworkService" */;
+			productName = NetworkService;
+		};
 		296155572EC7910900D035DC /* NetworkService */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NetworkService;
@@ -1187,6 +1208,11 @@
 		2998DDB82F7581A30057B2AD /* NetworkServiceDomain */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NetworkServiceDomain;
+		};
+		29BE8B562F7824BD00894C93 /* HybridCache */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 29BE8B552F7824BD00894C93 /* XCRemoteSwiftPackageReference "HybridCache" */;
+			productName = HybridCache;
 		};
 		F93FE8CC2D789C38006FF4F4 /* NetworkService */ = {
 			isa = XCSwiftPackageProductDependency;

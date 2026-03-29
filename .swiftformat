@@ -1,0 +1,11 @@
+--indent 4
+--indentcase false
+--ranges no-space
+--elseposition next-line
+--wraparguments before-first
+--guardelse next-line
+--stripunusedargs closure-only
+--maxwidth 120
+--trimwhitespace always
+--voidtype void
+--disable redundantSelf

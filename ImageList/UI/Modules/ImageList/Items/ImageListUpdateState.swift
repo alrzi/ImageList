@@ -11,50 +11,50 @@ enum ImageListUpdateState {
     case idle
     case pullToRefresh(LoadingState)
     case paginate(LoadingState)
-    
+
     // Refresh
-    
+
     var isRefreshing: Bool {
         switch self {
         case .idle, .paginate: false
-        case .pullToRefresh(let loadingState): loadingState.isLoading
+        case let .pullToRefresh(loadingState): loadingState.isLoading
         }
     }
-    
+
     var isRefreshingError: Bool {
         switch self {
         case .idle, .paginate: false
-        case .pullToRefresh(let loadingState): loadingState.isError
+        case let .pullToRefresh(loadingState): loadingState.isError
         }
     }
-    
+
     var refreshError: ErrorInfo? {
         switch self {
         case .idle, .pullToRefresh: nil
-        case .paginate(let loadingState): loadingState.error
+        case let .paginate(loadingState): loadingState.error
         }
     }
-    
+
     // Pagination
-    
+
     var isPaginating: Bool {
         switch self {
         case .idle, .pullToRefresh: false
-        case .paginate(let loadingState): loadingState.isLoading
+        case let .paginate(loadingState): loadingState.isLoading
         }
     }
-    
+
     var isPaginationError: Bool {
         switch self {
         case .idle, .pullToRefresh: false
-        case .paginate(let loadingState): loadingState.isError
+        case let .paginate(loadingState): loadingState.isError
         }
     }
-    
+
     var paginationError: ErrorInfo? {
         switch self {
         case .idle, .pullToRefresh: nil
-        case .paginate(let loadingState): loadingState.error
+        case let .paginate(loadingState): loadingState.error
         }
     }
 }

@@ -5,13 +5,13 @@
 //  Created by Александр Зиновьев on 22.02.2025.
 //
 
-import SwiftUI
 import Foundation
+import SwiftUI
 
 @MainActor
 struct AuthView<ViewModel: AuthViewModelProtocol> {
     @ObservedObject private var viewModel: ViewModel
-    
+
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
@@ -25,13 +25,13 @@ extension AuthView: View {
             switch viewModel.state {
             case .loading, .idle:
                 AppProgressView()
-                
+
             case .loaded:
                 VStack {
                     Spacer()
-                    
+
                     Image(._05WelcomeScreen)
-                    
+
                     Spacer()
                 }
                 .safeAreaInset(edge: .bottom) {
@@ -48,7 +48,7 @@ extension AuthView: View {
                     .padding(16)
                     .padding(.bottom, 16)
                 }
-                
+
             case .error:
                 ErrorView(onRetry: viewModel.onRetry)
             }
@@ -59,27 +59,27 @@ extension AuthView: View {
 }
 
 #if DEBUG
-#Preview("Loading") {
-    AuthView(viewModel: ViewModel(state: .loading))
-}
-
-#Preview("Loaded") {
-    AuthView(viewModel: ViewModel(state: .loaded(())))
-}
-
-#Preview("Error") {
-    AuthView(viewModel: ViewModel(state: .error))
-}
-
-private final class ViewModel: AuthViewModelProtocol {
-    let state: ViewModelState<()>
-    
-    init(state: ViewModelState<()>) {
-        self.state = state
+    #Preview("Loading") {
+        AuthView(viewModel: ViewModel(state: .loading))
     }
-    
-    func onAppear() { }
-    func onNext() { }
-    func onRetry() { }
-}
+
+    #Preview("Loaded") {
+        AuthView(viewModel: ViewModel(state: .loaded(())))
+    }
+
+    #Preview("Error") {
+        AuthView(viewModel: ViewModel(state: .error))
+    }
+
+    private final class ViewModel: AuthViewModelProtocol {
+        let state: ViewModelState<Void>
+
+        init(state: ViewModelState<Void>) {
+            self.state = state
+        }
+
+        func onAppear() {}
+        func onNext() {}
+        func onRetry() {}
+    }
 #endif

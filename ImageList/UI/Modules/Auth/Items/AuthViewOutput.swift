@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AuthViewOutput: Sendable {
+enum AuthViewOutput {
     case onAuthenticated(token: String)
     case onAuthenticate
 }

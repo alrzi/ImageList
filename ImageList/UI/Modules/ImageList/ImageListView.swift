@@ -10,9 +10,9 @@ import SwiftUI
 @MainActor
 struct ImageListView<ViewModel: ImageListViewModelProtocol> {
     @ObservedObject private var viewModel: ViewModel
-    
+
     private var paddingHorizontal: CGFloat = 8
-    
+
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
     }
@@ -24,8 +24,8 @@ extension ImageListView: View {
             switch viewModel.state {
             case .loading, .idle:
                 SkeletonModelsView()
-                
-            case .loaded(let models):
+
+            case let .loaded(models):
                 if models.isEmpty {
                     Text("Пока пусто")
                         .font(.system(size: 23, weight: .bold))
@@ -40,14 +40,16 @@ extension ImageListView: View {
                                     onLikeTap: { viewModel.onLikeTap(at: index) }
                                 )
                                 .frame(
-                                    width: model.imageSize(for: proxy.width, paddingHorizontal: paddingHorizontal).width,
-                                    height: model.imageSize(for: proxy.width, paddingHorizontal: paddingHorizontal).height
+                                    width: model.imageSize(for: proxy.width, paddingHorizontal: paddingHorizontal)
+                                        .width,
+                                    height: model.imageSize(for: proxy.width, paddingHorizontal: paddingHorizontal)
+                                        .height
                                 )
                                 .onTapGesture { viewModel.onImageTap(at: index) }
                                 .onTapGesture(count: 2) { viewModel.onLikeTap(at: index) }
                                 .onAppear { viewModel.onImageAppear(at: index) }
                             }
-                            
+
                             if viewModel.isPaginating {
                                 ProgressView()
                                     .scaleEffect(2)
@@ -66,7 +68,7 @@ extension ImageListView: View {
                         UIRefreshControl.appearance().tintColor = UIColor.white
                     }
                 }
-                
+
             case .error:
                 ErrorView(onRetry: viewModel.onRetry)
             }
@@ -76,7 +78,7 @@ extension ImageListView: View {
             isPresented: $viewModel.isLikeUpdateAlertPresented,
             presenting: viewModel.likeUpdateState.error,
             actions: { error in
-                Button(action: { }) {
+                Button(action: {}) {
                     Text(error.confirmationButtonText)
                 }
             },
@@ -89,7 +91,7 @@ extension ImageListView: View {
             isPresented: $viewModel.isRefreshAlertPresented,
             presenting: viewModel.updateState.refreshError,
             actions: { error in
-                Button(action: { }) {
+                Button(action: {}) {
                     Text(error.confirmationButtonText)
                 }
             },
@@ -102,7 +104,7 @@ extension ImageListView: View {
             isPresented: $viewModel.isPaginationAlertPresented,
             presenting: viewModel.updateState.paginationError,
             actions: { error in
-                Button(action: { }) {
+                Button(action: {}) {
                     Text(error.confirmationButtonText)
                 }
             },
@@ -129,7 +131,15 @@ private struct SkeletonModelsView: View {
 }
 
 #if DEBUG
-#Preview {
-    ImageListView(viewModel: ImageListViewModel(imageListManager: DebugImageListManager(), imageListType: .all) { _ in })
-}
+    #Preview {
+        let factory = ImageListCellViewModelFactory(imageLoader: DebugCachedImageLoader())
+        return ImageListView(
+            viewModel: ImageListViewModel(
+                imageListManager: DebugImageListManager(),
+                imageListType: .all,
+                factory: factory
+            ) { _ in
+            }
+        )
+    }
 #endif

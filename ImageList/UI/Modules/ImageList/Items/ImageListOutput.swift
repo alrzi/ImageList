@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum ImageListOutput: Sendable {
+enum ImageListOutput {
     case onImageTap(URL)
     case onLikeRemoved
 }

@@ -1,6 +1,24 @@
 {
-  "originHash" : "0e02a3177aaf4e4c1c5451ce047d7f26b89b016df3b7bcd1e2aade7fb5469e28",
+  "originHash" : "455f5cb956561d50bf72fd537d98d5b80d193234a73e0a7502f4280c7f3cd1dc",
   "pins" : [
+    {
+      "identity" : "asyncextensions",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alrzi/AsyncExtensions.git",
+      "state" : {
+        "revision" : "1e60fa6a54e7588db1d84542f1bb35fecd59368c",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "hybridcache",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alrzi/HybridCache.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "3046d8bd97ef146d15cb16e9d77dfa02a4b6703a"
+      }
+    },
     {
       "identity" : "kingfisher",
       "kind" : "remoteSourceControl",
@@ -11,12 +29,21 @@
       }
     },
     {
+      "identity" : "networkservice",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alrzi/NetworkService.git",
+      "state" : {
+        "revision" : "fe9b8f8e349a9d5926e21f55c3029fb817cdea08",
+        "version" : "1.0.0"
+      }
+    },
+    {
       "identity" : "swiftlintplugins",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SimplyDanny/SwiftLintPlugins",
       "state" : {
-        "revision" : "7a3d77f3dd9f91d5cea138e52c20cfceabf352de",
-        "version" : "0.58.2"
+        "revision" : "8a4640d14777685ba8f14e832373160498fbab92",
+        "version" : "0.63.2"
       }
     },
     {
