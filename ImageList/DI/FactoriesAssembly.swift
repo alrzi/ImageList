@@ -16,5 +16,13 @@ final class FactoriesAssembly: Assembly {
                 imageLoader: r.resolve(CachedImageLoaderProtocol.self)!
             )
         }
+        
+        container.register(ImageListViewModelFactoryProtocol.self) { r in
+            ImageListViewModelFactory(
+                factory: r.resolve(ImageListCellViewModelFactory.self)!,
+                favoriteManager: r.resolve(FavoriteManaging.self)!,
+                favoriteImageListManager: r.resolve(ImageListManaging.self)!
+            )
+        }
     }
 }

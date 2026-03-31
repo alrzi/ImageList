@@ -9,19 +9,17 @@ import Foundation
 import UIKit
 
 public protocol ImageListManaging: Sendable {
-    func fetchPhotosNextPage(_ page: Int) async throws -> [Photo]
-    func changeLike(photoId: String, isLiked: Bool) async throws -> Bool
+    func fetchPhotosNextPage(_ page: Int, type: PhotoType) async throws -> [Photo]
 }
 
-struct ImageListManager: ImageListManaging {
+public struct ImageListManager: ImageListManaging {
     let photosListService: PhotosListServiceProtocol
-    let likeService: LikeServiceProtocol
 
-    func fetchPhotosNextPage(_ page: Int) async throws -> [Photo] {
-        try await photosListService.fetchPhotosNextPage(page)
+    public init(photosListService: PhotosListServiceProtocol) {
+        self.photosListService = photosListService        
     }
 
-    func changeLike(photoId: String, isLiked: Bool) async throws -> Bool {
-        try await likeService.changeLike(photoId: photoId, isLiked: isLiked)
+    public func fetchPhotosNextPage(_ page: Int, type: PhotoType) async throws -> [Photo] {
+        try await photosListService.fetchPhotosNextPage(page, type: type)
     }
 }

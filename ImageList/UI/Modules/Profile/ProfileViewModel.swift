@@ -20,7 +20,7 @@ protocol ProfileViewModelProtocol: ObservableObject {
     var isLogOutConfirmationErrorPresented: Bool { get set }
     var isAccountAccuracyErrorPresented: Bool { get set }
 
-    var imageListViewModel: ImageListModel? { get }
+    var imageListViewModel: ImageListModel { get }
     var imageLoader: CachedImageLoaderProtocol { get }
 
     func onAppear()
@@ -34,7 +34,7 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     private let profileService: any ProfileServiceProtocol
     private let userSession: any UserSessionProtocol
     private let webViewCleaner: any WebViewCookieDataCleanerProtocol
-    private let imageService: any ImageServiceProtocol
+    private let favoriteManager: any FavoriteManaging
 
     private let eventsHandler: (ProfileOutput) -> Void
 
@@ -45,17 +45,18 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     @Published var isLogOutConfirmationErrorPresented = false
     @Published var isAccountAccuracyErrorPresented = false
 
-    private(set) var imageListViewModel: ImageListViewModel?
+    let imageListViewModel: ImageListViewModel
     let imageLoader: CachedImageLoaderProtocol
+    
+    private var likesCountObservationTask: Task<Void, Never>?
 
     init(
         profileImageURLService: some ProfileImageURLServiceProtocol,
         profileService: some ProfileServiceProtocol,
         userSession: some UserSessionProtocol,
         webViewCleaner: some WebViewCookieDataCleanerProtocol,
-        imageService: some ImageServiceProtocol,
-        favoriteImageListManager: ImageListManaging,
-        factory: ImageListCellViewModelFactory,
+        favoriteManager: some FavoriteManaging,
+        imageListViewModelFactory: ImageListViewModelFactoryProtocol,
         imageLoader: CachedImageLoaderProtocol,
         eventsHandler: @escaping (ProfileOutput) -> Void
     ) {
@@ -63,9 +64,18 @@ final class ProfileViewModel: ProfileViewModelProtocol {
         self.profileService = profileService
         self.userSession = userSession
         self.webViewCleaner = webViewCleaner
-        self.imageService = imageService
+        self.favoriteManager = favoriteManager
         self.imageLoader = imageLoader
         self.eventsHandler = eventsHandler
+
+        imageListViewModel = imageListViewModelFactory.makeImageListViewModel(
+            imageListType: .onlyFavorite,
+            eventsHandler: { output in
+                switch output {
+                case let .onImageTap(url): eventsHandler(.onImageTap(url))
+                }
+            }
+        )
 
         $logOutConfirmationError
             .map { $0 != nil }
@@ -75,23 +85,22 @@ final class ProfileViewModel: ProfileViewModelProtocol {
             .map { $0 != nil }
             .assign(to: &$isAccountAccuracyErrorPresented)
 
-        imageListViewModel = ImageListViewModel(
-            imageListManager: favoriteImageListManager,
-            imageListType: .onlyFavorite,
-            factory: factory,
-            eventsHandler: { [weak self] in self?.handle(output: $0) }
-        )
-
         Task {
             await updateProfile()
         }
-    }
 
-    func onAppear() {
-        Task {
-            await updateLikesCount()
+        likesCountObservationTask = Task { [weak self, favoriteManager] in
+            guard let self else {
+                return
+            }
+
+            for await likesCount in favoriteManager.totalLikesCount {
+                await self.updateLikesCountInState(likesCount)
+            }
         }
     }
+
+    func onAppear() { }
 
     func onRetry() {
         Task {
@@ -107,6 +116,10 @@ final class ProfileViewModel: ProfileViewModelProtocol {
         Task.detached(priority: .background) { [weak self] in
             await self?.cleanCookie()
         }
+    }
+
+    deinit {
+        likesCountObservationTask?.cancel()
     }
 }
 
@@ -133,24 +146,6 @@ private extension ProfileViewModel {
         }
     }
 
-    func updateLikesCount() async {
-        guard case let .loaded(model) = state else {
-            return
-        }
-
-        do {
-            let profile = try await profileService.fetchProfile()
-
-            if profile.totalLikes != model.totalLikes {
-                state = .loaded(model.with(likesCount: profile.totalLikes))
-            }
-        }
-        catch {
-            accountAccuracyError = .accountAccuracyError
-            debugPrint(error)
-        }
-    }
-
     func cleanCookie() async {
         await webViewCleaner.clean(for: "unsplash.com")
         await userSession.logout()
@@ -169,20 +164,12 @@ private extension ProfileViewModel {
         }
     }
 
-    func handle(output: ImageListOutput) {
-        switch output {
-        case let .onImageTap(uRL):
-            eventsHandler(.onImageTap(uRL))
-
-        case .onLikeRemoved:
-            guard case let .loaded(info) = state else {
-                return
-            }
-
-            let newState = info.withLikesCountDecreasedAtOne()
-
-            state = .loaded(newState)
+    func updateLikesCountInState(_ count: Int?) async {
+        guard case let .loaded(model) = state, let count else {
+            return
         }
+
+        state = .loaded(model.with(likesCount: count))
     }
 }
 

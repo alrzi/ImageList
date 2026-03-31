@@ -16,6 +16,8 @@
 		2998DDB72F7581A30057B2AD /* NetworkService in Frameworks */ = {isa = PBXBuildFile; productRef = 2998DDB62F7581A30057B2AD /* NetworkService */; };
 		2998DDB92F7581A30057B2AD /* NetworkServiceDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 2998DDB82F7581A30057B2AD /* NetworkServiceDomain */; };
 		29BE8B572F7824BD00894C93 /* HybridCache in Frameworks */ = {isa = PBXBuildFile; productRef = 29BE8B562F7824BD00894C93 /* HybridCache */; };
+		29FE6DF22F7C0D8D0062546E /* AsyncExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 29FE6DF12F7C0D8D0062546E /* AsyncExtensions */; };
+		29FE6DF42F7C0FFC0062546E /* AsyncExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 29FE6DF32F7C0FFC0062546E /* AsyncExtensions */; };
 		F93FC47D2D788E37006FF4F4 /* ImageListDomain.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F93FC4772D788E37006FF4F4 /* ImageListDomain.framework */; };
 		F93FC47E2D788E37006FF4F4 /* ImageListDomain.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F93FC4772D788E37006FF4F4 /* ImageListDomain.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F93FE8B12D789BFF006FF4F4 /* ImageListData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F93FE8A92D789BFF006FF4F4 /* ImageListData.framework */; };
@@ -144,6 +146,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				29681DF12F759D8C00823A3A /* Swinject in Frameworks */,
+				29FE6DF22F7C0D8D0062546E /* AsyncExtensions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -175,6 +178,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				296819C72F75993B00823A3A /* Kingfisher in Frameworks */,
+				29FE6DF42F7C0FFC0062546E /* AsyncExtensions in Frameworks */,
 				F93FC47D2D788E37006FF4F4 /* ImageListDomain.framework in Frameworks */,
 				F93FE8BC2D789BFF006FF4F4 /* ImageListData.framework in Frameworks */,
 				29681DEE2F759D8500823A3A /* Swinject in Frameworks */,
@@ -284,6 +288,7 @@
 			name = ImageListDomain;
 			packageProductDependencies = (
 				29681DF02F759D8C00823A3A /* Swinject */,
+				29FE6DF12F7C0D8D0062546E /* AsyncExtensions */,
 			);
 			productName = Domain;
 			productReference = F93FC4772D788E37006FF4F4 /* ImageListDomain.framework */;
@@ -368,6 +373,7 @@
 			packageProductDependencies = (
 				296819C62F75993B00823A3A /* Kingfisher */,
 				29681DED2F759D8500823A3A /* Swinject */,
+				29FE6DF32F7C0FFC0062546E /* AsyncExtensions */,
 			);
 			productName = ImageList;
 			productReference = F9843EEB295847EA00EB2CF4 /* ImageList.app */;
@@ -439,6 +445,7 @@
 				29681DEC2F759D8500823A3A /* XCRemoteSwiftPackageReference "Swinject" */,
 				294A1D172F76E121009389B6 /* XCRemoteSwiftPackageReference "NetworkService" */,
 				29BE8B552F7824BD00894C93 /* XCRemoteSwiftPackageReference "HybridCache" */,
+				29FE6DF02F7C0D8D0062546E /* XCRemoteSwiftPackageReference "AsyncExtensions" */,
 			);
 			productRefGroup = F9843EEC295847EA00EB2CF4 /* Products */;
 			projectDirPath = "";
@@ -1161,6 +1168,14 @@
 				kind = branch;
 			};
 		};
+		29FE6DF02F7C0D8D0062546E /* XCRemoteSwiftPackageReference "AsyncExtensions" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/alrzi/AsyncExtensions.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		F9A75E462D745CFF00B7620F /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
@@ -1213,6 +1228,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 29BE8B552F7824BD00894C93 /* XCRemoteSwiftPackageReference "HybridCache" */;
 			productName = HybridCache;
+		};
+		29FE6DF12F7C0D8D0062546E /* AsyncExtensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 29FE6DF02F7C0D8D0062546E /* XCRemoteSwiftPackageReference "AsyncExtensions" */;
+			productName = AsyncExtensions;
+		};
+		29FE6DF32F7C0FFC0062546E /* AsyncExtensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 29FE6DF02F7C0D8D0062546E /* XCRemoteSwiftPackageReference "AsyncExtensions" */;
+			productName = AsyncExtensions;
 		};
 		F93FE8CC2D789C38006FF4F4 /* NetworkService */ = {
 			isa = XCSwiftPackageProductDependency;

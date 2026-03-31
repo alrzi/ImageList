@@ -21,7 +21,6 @@ struct LikeService: LikeServiceProtocol {
         )
 
         let response = try await networkService.perform(request)
-
         return response.photo.likedByUser
     }
 }

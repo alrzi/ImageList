@@ -12,17 +12,16 @@ public final class ImageListDomainAssembly: Assembly {
     public init() {}
 
     public func assemble(container: Container) {
-        container.register(ImageListManaging.self, name: "all") { r in
+        container.register(ImageListManaging.self) { r in
             ImageListManager(
-                photosListService: r.resolve(PhotosListServiceProtocol.self, name: "all")!,
-                likeService: r.resolve(LikeServiceProtocol.self)!
+                photosListService: r.resolve(PhotosListServiceProtocol.self)!,
             )
         }
 
-        container.register(ImageListManaging.self, name: "favorite") { r in
-            ImageListManager(
-                photosListService: r.resolve(PhotosListServiceProtocol.self, name: "favorite")!,
-                likeService: r.resolve(LikeServiceProtocol.self)!
+        container.register(FavoriteManaging.self) { r in
+            FavoriteManager(
+                likeService: r.resolve(LikeServiceProtocol.self)!,
+                profileService: r.resolve(ProfileServiceProtocol.self)!
             )
         }
     }

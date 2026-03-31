@@ -10,7 +10,7 @@ import Foundation
 import HybridCache
 import ImageListDomain
 
-public final actor CachedImageLoader: CachedImageLoaderProtocol {    
+final actor CachedImageLoader: CachedImageLoaderProtocol {
     private let cache: HybridCacheStorage
     private let networkService: NetworkClientProtocol
 
@@ -18,18 +18,14 @@ public final actor CachedImageLoader: CachedImageLoaderProtocol {
 
     init(storage: FileStorageProtocol, networkService: NetworkClientProtocol) {
         let cacheDirectory = FileManager.cacheDirectory(name: "ImageCache")
-        let disk = DiskCacheComponentWithSizeLimit(
-            storage: storage,
-            cacheDirectory: cacheDirectory,
-            sizeLimit: 500 * 1024 * 1024
-        )
+        let disk = DiskCacheComponentImpl(storage: storage, cacheDirectory: cacheDirectory)
         let memory = NSCacheStrategy(costLimit: 100 * 1024 * 1024)
         
         self.cache = HybridCacheStorage(memoryStrategy: memory, disk: disk)
         self.networkService = networkService
     }
 
-    public func loadImage(from url: URL) async throws -> Data {
+    func loadImage(from url: URL) async throws -> Data {
         let key = url.absoluteString
 
         if let cached = cache.fetch(key: key) {
@@ -61,16 +57,16 @@ public final actor CachedImageLoader: CachedImageLoaderProtocol {
         return try await task.value
     }
 
-    public func cancelLoad(for url: URL) {
+    func cancelLoad(for url: URL) {
         activeTasks[url]?.cancel()
         activeTasks[url] = nil
     }
 
-    public func clearCache() async {
+    func clearCache() async {
         cache.clear()
     }
 
-    private func removeTask(for url: URL) {
+    func removeTask(for url: URL) {
         activeTasks[url] = nil
     }
 }

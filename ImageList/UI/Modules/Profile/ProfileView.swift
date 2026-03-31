@@ -35,12 +35,10 @@ extension ProfileView: View {
 
                     Spacer(minLength: 0)
 
-                    if let viewModel = viewModel.imageListViewModel {
-                        ImageListView(viewModel: viewModel)
-                            .padding(.vertical, 8)
+                    ImageListView(viewModel: viewModel.imageListViewModel)
+                        .padding(.vertical, 8)
 
-                        Spacer(minLength: 0)
-                    }
+                    Spacer(minLength: 0)
                 }
 
             case .error:
@@ -179,16 +177,7 @@ private struct ProfileTopView: View {
         let state: ViewModelState<ProfileModel>
         let logOutConfirmationError: ErrorInfo? = nil
         let accountAccuracyError: ErrorInfo? = nil
-
-        let imageListViewModel: ImageListViewModel? = {
-            let factory = ImageListCellViewModelFactory(imageLoader: DebugCachedImageLoader())
-            return ImageListViewModel(
-                imageListManager: DebugImageListManager(),
-                imageListType: .onlyFavorite,
-                factory: factory
-            ) { _ in }
-        }()
-
+        let imageListViewModel: ImageListViewModel = makeImageListViewModelDebug()
         let imageLoader: CachedImageLoaderProtocol = DebugCachedImageLoader()
 
         var isLogOutConfirmationErrorPresented = false

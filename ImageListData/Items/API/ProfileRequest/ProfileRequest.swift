@@ -37,7 +37,7 @@ extension API {
         }
     }
 
-    struct ProfileResult: Decodable {
+    struct ProfileResult: Codable {
         let username: String
         let firstName: String
         let lastName: String
