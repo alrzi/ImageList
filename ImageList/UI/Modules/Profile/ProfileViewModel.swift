@@ -47,8 +47,9 @@ final class ProfileViewModel: ProfileViewModelProtocol {
 
     let imageListViewModel: ImageListViewModel
     let imageLoader: CachedImageLoaderProtocol
-    
+
     private var likesCountObservationTask: Task<Void, Never>?
+    private var latestLikesCount: Int?
 
     init(
         profileImageURLService: some ProfileImageURLServiceProtocol,
@@ -136,7 +137,7 @@ private extension ProfileViewModel {
         do {
             let profile = try await profileService.fetchProfile()
 
-            state = .loaded(profile.toProfileModel())
+            state = .loaded(profile.toProfileModel(likesCount: latestLikesCount))
 
             await updateImage(for: profile)
         }
@@ -157,7 +158,12 @@ private extension ProfileViewModel {
         do {
             let imageURL = try await profileImageURLService.fetchProfileImageUrl(username: profile.username)
 
-            state = .loaded(profile.toProfileModel(with: imageURL))
+            state = .loaded(
+                profile.toProfileModel(
+                    with: imageURL,
+                    likesCount: latestLikesCount
+                )
+            )
         }
         catch {
             debugPrint(error)
@@ -165,6 +171,8 @@ private extension ProfileViewModel {
     }
 
     func updateLikesCountInState(_ count: Int?) async {
+        latestLikesCount = count
+
         guard case let .loaded(model) = state, let count else {
             return
         }
@@ -194,21 +202,21 @@ private extension ErrorInfo {
 }
 
 private extension Profile {
-    func toProfileModel() -> ProfileModel {
+    func toProfileModel(likesCount: Int?) -> ProfileModel {
         .init(
             name: fullName,
             email: loginName,
             greeting: bio,
-            totalLikes: totalLikes
+            totalLikes: likesCount ?? totalLikes
         )
     }
 
-    func toProfileModel(with avatarURL: URL) -> ProfileModel {
+    func toProfileModel(with avatarURL: URL, likesCount: Int?) -> ProfileModel {
         .init(
             name: fullName,
             email: loginName,
             greeting: bio,
-            totalLikes: totalLikes,
+            totalLikes: likesCount ?? totalLikes,
             avatarURL: avatarURL
         )
     }

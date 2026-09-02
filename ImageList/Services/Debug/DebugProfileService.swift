@@ -9,16 +9,32 @@ import Foundation
 import ImageListDomain
 
 #if DEBUG
-    struct DebugProfileService: ProfileServiceProtocol {
+    struct DebugProfileService: ProfileImageURLServiceProtocol, ProfileServiceProtocol {
+        // MARK: - Private properties
+
+        private let photoStore: DebugPhotoStore
+
+        // MARK: - Lifecycle
+
+        init(photoStore: DebugPhotoStore) {
+            self.photoStore = photoStore
+        }
+
+        // MARK: - Public methods
+
         func fetchProfile() async throws -> Profile {
             Profile(
-                username: "username",
-                firstName: "firstName",
-                lastName: "lastName",
-                loginName: "@" + "username",
-                totalLikes: 40,
-                bio: ""
+                username: "debug.user",
+                firstName: "Debug",
+                lastName: "User",
+                loginName: "@debug.user",
+                totalLikes: await photoStore.totalLikes(),
+                bio: "Локальный профиль для тестирования без сети"
             )
+        }
+
+        func fetchProfileImageUrl(username: String) async throws -> URL {
+            URL(string: "debug://images/1")!
         }
     }
 #endif

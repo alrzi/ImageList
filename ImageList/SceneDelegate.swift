@@ -26,31 +26,56 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         // DI container
         let assembler = Assembler()
-        assembler.apply(
-            assemblies: [
-                ImageListDataAssembly(),
-                ImageListDomainAssembly(),
-                ServicesAssembly(),
-                FactoriesAssembly(),
-                ModulesAssembly(),
-            ]
-        )
+        #if DEBUG
+            assembler.apply(
+                assemblies: [
+                    ImageListDataAssembly(),
+                    ImageListDomainAssembly(),
+                    ServicesAssembly(),
+                    FactoriesAssembly(),
+                    ModulesAssembly(),
+                    DebugServicesAssembly(),
+                ]
+            )
+        #else
+            assembler.apply(
+                assemblies: [
+                    ImageListDataAssembly(),
+                    ImageListDomainAssembly(),
+                    ServicesAssembly(),
+                    FactoriesAssembly(),
+                    ModulesAssembly(),
+                ]
+            )
+        #endif
 
         let resolver = assembler.resolver
 
         // coordinator
         let window = UIWindow(windowScene: windowScene)
 
-        coordinator = LoginCoordinator(
-            userSession: resolver.resolve(UserSessionProtocol.self)!,
-            webViewAssembly: resolver.resolve(WebViewAssembly.self)!,
-            authAssembly: resolver.resolve(AuthAssembly.self)!,
-            profileAssembly: resolver.resolve(ProfileAssembly.self)!,
-            imageListAssembly: resolver.resolve(ImageListAssembly.self)!,
-            detailImageAssembly: resolver.resolve(DetailImageAssembly.self)!,
-            window: window,
-            navigationController: .createController(isNavBarHidden: false)
-        )
+        #if DEBUG
+            coordinator = TabBarCoordinator(
+                profileAssembly: resolver.resolve(ProfileAssembly.self)!,
+                imageListAssembly: resolver.resolve(ImageListAssembly.self)!,
+                detailImageAssembly: resolver.resolve(DetailImageAssembly.self)!,
+                window: window,
+                imageListNavigationController: .createController(isNavBarHidden: true),
+                profileNavigationController: .createController(isNavBarHidden: true),
+                onComplete: {}
+            )
+        #else
+            coordinator = LoginCoordinator(
+                userSession: resolver.resolve(UserSessionProtocol.self)!,
+                webViewAssembly: resolver.resolve(WebViewAssembly.self)!,
+                authAssembly: resolver.resolve(AuthAssembly.self)!,
+                profileAssembly: resolver.resolve(ProfileAssembly.self)!,
+                imageListAssembly: resolver.resolve(ImageListAssembly.self)!,
+                detailImageAssembly: resolver.resolve(DetailImageAssembly.self)!,
+                window: window,
+                navigationController: .createController(isNavBarHidden: false)
+            )
+        #endif
 
         coordinator?.start()
 

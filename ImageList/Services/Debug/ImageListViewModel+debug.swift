@@ -11,15 +11,17 @@ import ImageListDomain
 #if DEBUG
 @MainActor
 func makeImageListViewModelDebug() -> ImageListViewModel {
-    ImageListViewModel(
-        imageListManager: DebugImageListManager(),
+    let photoStore = DebugPhotoStore()
+
+    return ImageListViewModel(
+        imageListManager: DebugImageListManager(photoStore: photoStore),
         imageListType: .all,
         factory: ImageListCellViewModelFactory(
             imageLoader: DebugCachedImageLoader()
         ),
         favoriteManager: FavoriteManager(
-            likeService: DebugLikeService(),
-            profileService: DebugProfileService()
+            likeService: DebugLikeService(photoStore: photoStore),
+            profileService: DebugProfileService(photoStore: photoStore)
         )
     ) { _ in }
 }

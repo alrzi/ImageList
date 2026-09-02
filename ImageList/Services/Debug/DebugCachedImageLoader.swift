@@ -8,10 +8,15 @@
 #if DEBUG
     import Foundation
     import ImageListDomain
+    import UIKit
 
     struct DebugCachedImageLoader: CachedImageLoaderProtocol {
         func loadImage(from url: URL) async throws -> Data {
-            Data()
+            guard let image = UIImage(named: url.lastPathComponent), let data = image.pngData() else {
+                throw URLError(.fileDoesNotExist)
+            }
+
+            return data
         }
 
         func cancelLoad(for url: URL) async {}

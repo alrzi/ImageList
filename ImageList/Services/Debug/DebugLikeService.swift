@@ -6,13 +6,26 @@
 //
 
 #if DEBUG
-    import Foundation
     import ImageListDomain
 
     struct DebugLikeService: LikeServiceProtocol {
+        // MARK: - Private properties
+
+        private let photoStore: DebugPhotoStore
+
+        // MARK: - Lifecycle
+
+        init(photoStore: DebugPhotoStore) {
+            self.photoStore = photoStore
+        }
+
+        // MARK: - Public methods
+
         func changeLike(photoId: String, isLiked: Bool) async throws -> Bool {
-            try await Task.sleep(nanoseconds: 1_000_000_000)
-            return isLiked
+            await photoStore.changeLike(
+                photoId: photoId,
+                isLiked: isLiked
+            )
         }
     }
 #endif
